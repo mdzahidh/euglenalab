@@ -8,90 +8,10 @@
             "default"
         ]
     },
-    "eug30": {
-        "index": 30,
-        "name": "eug30",
-        "isOn": false,
-        "allowedGroups": [
-            "all"
-        ]
-    },
-    "eug0": {
-        "index": 0,
-        "name": "eug0",
-        "isOn": true,
-        "allowedGroups": [
-            "admin",
-            "default",
-            "scripter",
-            "nwg",
-            "golabz"
-        ]
-    },
-    "eug1": {
-        "index": 1,
-        "name": "eug1",
-        "isOn": true,
-        "allowedGroups": [
-            "admin",
-            "default",
-            "scripter",
-            "nwg",
-            "golabz"
-        ]
-    },
-    "eug2": {
-        "index": 2,
-        "name": "eug2",
-        "isOn": true,
-        "allowedGroups": [
-            "admin",
-            "default",
-            "scripter",
-            "nwg",
-            "golabz"
-        ]
-    },
-    "eug3": {
-        "index": 3,
-        "name": "eug3",
-        "isOn": false,
-        "allowedGroups": [
-            "admin",
-            "default",
-            "scripter",
-            "nwg",
-            "golabz"
-        ]
-    },
-    "eug15": {
-        "index": 15,
-        "name": "eug15",
-        "isOn": false,
-        "allowedGroups": [
-            "admin",
-            "default",
-            "scripter",
-            "nwg",
-            "golabz"
-        ]
-    },
-    "eug16": {
-        "index": 16,
-        "name": "eug16",
-        "isOn": false,
-        "allowedGroups": [
-            "admin",
-            "default",
-            "scripter",
-            "nwg",
-            "golabz"
-        ]
-    },
-    "eug18": {
+   "eug18": {
         "index": 18,
         "name": "eug18",
-        "isOn": false,
+        "isOn": true,
         "allowedGroups": [
             "admin",
             "default",
@@ -103,7 +23,7 @@
     "eug19": {
         "index": 19,
         "name": "eug19",
-        "isOn": false,
+        "isOn": true,
         "allowedGroups": [
             "admin",
             "default",
@@ -115,7 +35,7 @@
     "eug20": {
         "index": 20,
         "name": "eug20",
-        "isOn": false,
+        "isOn": true,
         "allowedGroups": [
             "admin",
             "default",

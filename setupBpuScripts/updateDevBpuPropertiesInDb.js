@@ -2,7 +2,7 @@ var async=require('async');
 
 //Mongoose
 var mongoose=require('mongoose');
-var mongoUri='mongodb://localhost:27017/'+'masterV2';
+var mongoUri='mongodb://localhost:27017/'+'master';
 //Socket Client
 var socketIoClient=require('socket.io-client');
 var socketClientServerIP='localhost';
