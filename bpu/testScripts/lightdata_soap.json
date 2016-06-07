@@ -1,0 +1,29 @@
+[
+    {
+        "time": 1457741138544,
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "setTime": 8,
+        "askTime": 0
+    },
+    {
+        "time": 1457741183538,
+        "topValue": 100,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "setTime": 45002,
+        "askTime": 45000
+    },
+    {
+        "time": 1457741228539,
+        "topValue": 0,
+        "rightValue": 70,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "setTime": 90003,
+        "askTime": 90000
+    }
+]

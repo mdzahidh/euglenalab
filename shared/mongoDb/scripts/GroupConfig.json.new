@@ -1,0 +1,39 @@
+[
+  {
+    "name":"saveAllBpuImages",
+    "description":"allows bpu to save all images"
+  },
+  {
+    "name":"saveAllBpuLightData",
+    "description":"allows bpu to save all light data"
+  },
+  {
+    "name":"saveSampleBpuImagesAndLightData",
+    "description":"saves a sample of bpu images and light data when activity starts"
+  },
+  {
+    "name":"saveSampleClientImagesAndLightData",
+    "description":"saves a sample of client side images and light data when activity starts"
+  },
+  {
+    "name":"saveAllBpuLightData",
+    "description":"allows bpu to save all light data"
+  },
+  {
+    "name":"makeVideo",
+    "description":"allows bpu to make a video of images"
+ 
+  },
+  {
+    "name":"allowTextFile",
+    "description":"allows text files to be sent to bpu."
+  },
+  {
+    "name":"allowLive",
+    "description":"allows live use of lights on bpu."
+  },
+  {
+    "name":"allowScript",
+    "description":"allows bpu to run scripts."
+  }
+]

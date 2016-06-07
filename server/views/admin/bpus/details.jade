@@ -1,0 +1,176 @@
+extends ../../../layouts/admin
+
+block head
+  title BPUs / Details
+
+block neck
+  link(rel='stylesheet', href='/views/admin/bpus/details.min.css?#{cacheBreaker}')
+  style.
+    #myBlank {width:100%; visibility:hidden;}
+    #bpuGraph {width:100%; height:100%}
+    #graphTitle {text-align:center; font-size:16px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+block feet
+  script(src='/views/admin/bpus/details.min.js?#{cacheBreaker}')
+  script(src='/views/admin/bpus/Views/Live.js')
+  script(src='/views/admin/bpus/Views/Graph.js')
+  script(src='/views/admin/bpus/admin_bpu-client.js')
+
+block body
+  div.row
+    div.col-xs-12
+      div#header
+  div.row
+    div.col-sm-12
+      div.row#live-view
+  div.row
+    div.col-sm-12
+      div.row#graph-view
+  div.row
+    div.col-sm-12
+      fieldset
+        div#notes-new.notes-new
+        div#notes-collection
+  div.row
+    div.row#details
+
+  script(type='text/template', id='tmpl-header')
+    div.page-header
+      h1
+        a(href='/admin/bpus/') BPUs
+        |  / <%- name %>
+      label#dateLabel(type='label', name='dateLabel', style='width:100%;') Last Update: Connecting...
+      label#statusLabel(type='label', name='statusLabel', style='width:100%;') Status: None
+      label#errorLabel(type='label', name='errorLabel', style='width:100%;') Error: None
+
+  script(type='text/template', id='tmpl-live-view')
+    div.row
+      legend Live View 
+    div.row(style='height:240px; padding:0px 0px 0px 0px; margin:0px 0px 50px 0px;')
+      div.col-sm-4(style='height:100%; margin:0px 0px 0px 0px;')
+        img#myImage(name='myImage', src='#{data.mainImageIP}', style='height:100%; width:100%;')
+      div.col-sm-2(style='height:100%;')
+        button.btn.btn-default.btn-block.btn-myFlush10(type='button', name='myFlush10', style='width:100%;', disabled) 10sec Flush
+        button.btn.btn-default.btn-block.btn-myScripterActivity(type='button', name='myScripterActivity', style='width:100%;', disabled) Activity
+        button.btn.btn-default.btn-block.btn-myLedTop(type='button', name='myLedTop', style='width:100%;', disabled) Led Top
+        button.btn.btn-default.btn-block.btn-myRecord(type='button', name='myRecord', style='width:100%;', disabled) Record
+        button.btn.btn-default.btn-block.btn-myJoinLab(type='button', name='myJoinLab', style='width:100%;', disabled) Join Lab
+      div.col-sm-2(style='height:100%;')
+        button.btn.btn-default.btn-block.btn-myFlush30(type='button', name='myFlush30', style='width:100%;', disabled) 30sec Flush
+        button.btn.btn-default.btn-block.btn-myScripterPopulation(type='button', name='myScripterPopulation', style='width:100%;', disabled) Population 
+        button.btn.btn-default.btn-block.btn-myLedRight(type='button', name='myLedRight', style='width:100%;', disabled) Led Right
+        button.btn.btn-default.btn-block.btn-myRunScript(type='button', name='myRunScript', style='width:100%;', disabled) Run Script
+        button.btn.btn-default.btn-block.btn-myTimeToJoin(type='button', name='myJoinLab', style='width:100%;', disabled) Time to Join 
+      div.col-sm-2(style='height:100%;')
+        button.btn.btn-default.btn-block.btn-myFlush120(type='button', name='myFlush120', style='width:100%;', disabled) 2min Flush
+        button.btn.btn-default.btn-block.btn-myScripterResponse(type='button', name='myScripterResponse', style='width:100%;', disabled) Response 
+        button.btn.btn-default.btn-block.btn-myLedBottom(type='button', name='myLedBottom', style='width:100%;', disabled) Led Bottom
+        button.btn.btn-default.btn-block.btn-mySetScript(type='button', name='mySetScript', style='width:100%;', disabled) Set Script
+        button.btn.btn-default.btn-block.btn-myLeftInLab(type='button', name='myJoinLab', style='width:100%;', disabled) Time left in Lab
+      div.col-sm-2(style='height:100%;')
+        button.btn.btn-default.btn-block.btn-myBlank#myBlank(type='button', name='myBlank', disabled) myBlank
+        button.btn.btn-default.btn-block.btn-myScripterAuto(type='button', name='myScripterAuto', style='width:100%;', disabled) Auto Run On/Off 
+        button.btn.btn-default.btn-block.btn-myLedLeft(type='button', name='myLedLeft', style='width:100%;', disabled) Led Left
+        button.btn.btn-default.btn-block.btn-myBlank#myBlank(type='button', name='myBlank', disabled) myBlank
+        button.btn.btn-default.btn-block.btn-myKickUser(type='button', name='myJoinLab', style='width:100%;', disabled) Kick User 
+  
+  script(type='text/template', id='tmpl-graph-view')
+    div.row
+      legend Graph View 
+      - for(var q=0;q<data.graphs.length;q++) 
+        div.col-sm-4
+          div.panel.panel-default
+            div.panel-body
+              - for(var r=0;r<data.graphs[q].labels.length;r++)
+                label#graphTitle(name=data.graphs[q].name, value=r) #{data.graphs[q].labels[r].str}
+              img#bpuGraph(name=data.graphs[q].name, src='#{data.graphs[q].src}')
+            div.panel-footer(style='width:100%; height:100px;')
+              div.row.btn-group(data-toggle='buttons', style='margin:0% 0% 5px 0%;')
+                button.btn.btn-default.btn-block.btn-myRefreshData(type='button', value=data.graphs[q].name, name='myRefreshData', style='width:25%;', disabled) Refresh
+                label.btn.btn-primary Hour
+                  input#hour(type='radio', name=data.graphs[q].name)
+                label.btn.btn-primary Day
+                  input#day(type='radio', name=data.graphs[q].name)
+                label.btn.btn-primary Week
+                  input#week(type='radio', name=data.graphs[q].name)
+                label.btn.btn-primary.active All
+                  input#all(type='radio', name=data.graphs[q].name, checked='')
+              div.row
+                div.col-sm-4(style='height:50%;')
+                  button.btn.btn-default.btn-block.btn-myDownloadData(type='button', name='myDownloadData', style='width:100%;', disabled) Download 
+                div.col-sm-4(style='height:50%;')
+                  button.btn.btn-default.btn-block.btn-myBlank#myBlank(type='button', name='myBlank', style='width:100%;', disabled) Blank 
+                div.col-sm-4(style='height:50%;')
+                  button.btn.btn-default.btn-block.btn-myBlank#myBlank(type='button', name='myBlank', style='width:100%;', disabled) Blank 
+  
+  script(type='text/template', id='tmpl-details')
+    fieldset
+      legend BPU Info
+      div.alerts
+        |<% _.each(errors, function(err) { %>
+        div.alert.alert-danger.alert-dismissable
+          |<%- err %>
+        |<% }); %>
+        |<% if (success) { %>
+        div.alert.alert-info.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          | Changes have been saved.
+        |<% } %>
+      
+      div.form-group(class!='<%- errfor.index ? "has-error" : "" %>')
+        label index:
+        input.form-control(type='text', name='index', value!='<%- index %>')
+        span.help-block <%- errfor.index %>
+      
+      div.form-group(class!='<%- errfor.name ? "has-error" : "" %>')
+        label Name:
+        input.form-control(type='text', name='name', value!='<%- name %>')
+        span.help-block <%- errfor.name %>
+      
+      div.form-group(class!='<%- errfor.magnification ? "has-error" : "" %>')
+        label magnification:
+        input.form-control(type='text', name='last', value!='<%- magnification %>')
+        span.help-block <%- errfor.magnification %>
+      
+      div.form-group(class!='<%- errfor.allowedGroups ? "has-error" : "" %>')
+        label allowedGroups:
+        input.form-control(type='text', name='allowedGroups', value!='<%- allowedGroups %>')
+        span.help-block <%- errfor.allowedGroups %>
+      
+      div.form-group(class!='<%- errfor.isOn ? "has-error" : "" %>')
+        label isOn:
+        input.form-control(type='text', name='isOn', value!='<%- isOn %>')
+        span.help-block <%- errfor.isOn %>
+      
+      div.form-group(class!='<%- errfor.currentStatus ? "has-error" : "" %>')
+        label currentStatus:
+        input.form-control(type='text', name='currentStatus', value!='<%- currentStatus %>')
+        span.help-block <%- errfor.currentStatus %>
+
+
+
+  script(type='text/template', id='tmpl-notes-new')
+    legend Notes
+    div.alerts
+      |<% _.each(errors, function(err) { %>
+      div.alert.alert-danger.alert-dismissable
+        button.close(type='button', data-dismiss='alert') &times;
+        |<%- err %>
+      |<% }); %>
+    textarea.form-control(rows='3', name='data', placeholder='enter notes')
+    button.btn.btn-default.btn-block.btn-add Add New Note
+
+  script(type='text/template', id='tmpl-notes-collection')
+    div#notes-items.notes-items
+
+  script(type='text/template', id='tmpl-notes-item')
+    div.force-wrap <%- data %>
+    div.pull-right.badge.author
+      |<%= userCreated.name %>
+      | -&nbsp;
+      span <%= userCreated.time %>
+    div.clearfix
+
+  script(type='text/template', id='tmpl-notes-none')
+    div.note.text-muted no notes found
+
+  script(type='text/template', id='data-record') !{data.record}

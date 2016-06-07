@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ValidateResponse xmlns="http://ilab.mit.edu">
+      <ValidateResult>
+        <accepted>xccepted</accepted>
+        <warningMessages>
+          <string>warning1</string>
+          <string>warning2</string>
+        </warningMessages>
+        <errorMessage>xrrorMessage</errorMessage>
+        <estRuntime>xstRuntime</estRuntime>
+      </ValidateResult>
+    </ValidateResponse>
+  </soap:Body>
+</soap:Envelope>

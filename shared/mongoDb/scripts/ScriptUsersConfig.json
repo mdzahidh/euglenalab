@@ -1,0 +1,58 @@
+[
+  {
+    "name":"admin",
+    "description":"admin",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowLive":true,
+      "doAllowScript":true
+    }
+  },
+  {
+    "name":"default",
+    "description":"default",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowLive":true,
+      "doAllowScript":false
+    }
+  },
+  {
+    "name":"nwg",
+    "description":"northwestern iLabs Group",
+    "users":["nwgclient001"],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowLive":false,
+      "doAllowScript":false
+    }
+  },
+  {
+    "name":"scripter",
+    "description":"internal script users",
+    "users":["scripterPopulation, scripterActivity, scripterResponse"],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowLive":false,
+      "doAllowScript":true
+    }
+  }
+]

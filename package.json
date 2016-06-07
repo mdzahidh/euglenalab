@@ -1,0 +1,23 @@
+{
+  "name": "master_euglenalab",
+  "version": "1.0.0",
+  "description": "base level npm modules",
+  "main": "index.js",
+  "dependencies": {
+    "async": "^1.5.2",
+    "log4js": "^0.6.36",
+    "mongoose": "^4.4.19",
+    "socket.io": "^1.4.6",
+    "socket.io-client": "^1.4.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@remotebio.stanford.edu:zhossain/euglenalab.git"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,37 @@
+[
+    {
+        "topValue": 100,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 0
+    },
+    {
+        "topValue": 0,
+        "rightValue": 100,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 30000
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 100,
+        "leftValue": 0,
+        "time": 60000
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 100,
+        "time": 90000
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 120000
+    }
+]

@@ -1,0 +1,14 @@
+{
+    "settings": {
+        "doSaveImages": true,
+        "doSaveLightData": true,
+        "doMakeVideo": false,
+        "doAllowTextFile": true,
+        "doAllowScript": false,
+        "doNotSave": false
+    },
+    "name": "default",
+    "description": "default",
+    "users": [],
+    "priority": 0
+}

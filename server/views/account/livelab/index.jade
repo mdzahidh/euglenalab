@@ -1,0 +1,148 @@
+extends ../../../layouts/account
+
+block head
+  title Live Joystick Lab 
+  //meta(http-equiv='refresh', content='30')
+
+
+block neck
+  style.
+    #debugLabel {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
+    #debugLabel0 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
+    #debugLabel1 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
+    #debugLabel2 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
+    #debugLabel3 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
+    #myMainRow {
+      background-color:#ffffff; 
+      margin-top:1%;
+      height:#{data.divInfo.mainRowHeight};
+      width:#{data.divInfo.mainRowWidth}; 
+      float:left;
+    }
+    
+    #myMainCol {
+      background-color:#ffffff; 
+      height:100%; 
+      height:#{data.divInfo.mainColHeight};
+      width:#{data.divInfo.mainColWidth}; 
+      float:left;
+    }
+    #myLightSpacer {
+      background-color:rgba(0,0,0,0.5); 
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightShort};
+      float:left; 
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    #myTopLight {
+      background-color:rgba(255,255,0,#{data.lightData.topLightAlpha}); 
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightLong};
+      float:left; 
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    #myLeftLight {
+      background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha}); 
+      height:#{data.divInfo.lightLong};
+      width:#{data.divInfo.lightShort};
+      float:left; 
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    #myImage {
+      background-color:#d3d3d3; 
+      height:#{data.divInfo.imageHeight};
+      width:#{data.divInfo.imageWidth}; 
+      float:left;
+    }
+    #myRightLight {
+      background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha}); 
+      height:#{data.divInfo.lightLong};
+      width:#{data.divInfo.lightShort};
+      float:left; 
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    #myBottomLight {
+      background-color:rgba(255,255,0,#{data.lightData.bottomLightAlpha}); 
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightLong};
+      float:left; 
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    } 
+    #myAside {
+      background-color:#ffffff; 
+      height:#{data.divInfo.asideColHeight};
+      width:#{data.divInfo.asideColWidth}; 
+      float:left;
+    }
+    
+    #myImage2 {
+      background-color:#d3d3d3; 
+      height:#{data.divInfo.sideImageHeight};
+      width:#{data.divInfo.sideImageWidth}; 
+      float:left;
+    }
+    #myJoystick {
+      background-color:#A0A0A0; 
+      height:#{data.divInfo.joystickHeight};
+      width:#{data.divInfo.joystickWidth}; 
+      float:left;
+    }
+    .canvas-joystick-off {background-color:#A0A0A0;} 
+    .canvas-joystick-on {background-color:#66b2ff;}
+    #labTimeLeftLabel {font-size:36px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;} 
+
+block feet
+  script(src='/views/account/livelab/index.min.js?#{cacheBreaker}')
+  script(src="/views/account/livelab/Canvas_Joystick.js")
+  script(src='/views/account/livelab/socket-client.js')
+
+block body
+  label#debugLabel(name='debugLabel') Last Bpu Update:Never seconds ago
+  label#debugLabel0(name='debugLabel0') Last Ping:Never seconds ago
+  label#debugLabel1(name='debugLabel1') Connected False
+  label#debugLabel2(name='debugLabel2') Set Connection Res?
+  label#debugLabel3(name='debugLabel3') Join Queue Status:None
+  label#labTimeLeftLabel(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
+  if data.divInfo.hasAside
+    div.row#myMainRow(name='myMainRow')
+      div.col#myMainCol(name='myMainCol')
+        div#myLightSpacer(name='myLightSpacer') 
+        div#myTopLight(name='myTopLight') #{data.lightData.topValue}
+        div#myLightSpacer(name='myLightSpacer') 
+        div#myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
+        img#myImage(name='myImage', src='#{data.mainImageIP}')
+        div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
+        div#myLightSpacer(name='myLightSpacer') 
+        div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
+        div#myLightSpacer(name='myLightSpacer') 
+      div.col#myAside(name='myAside')
+        div#myJoystick.canvas-joystick-off(name='myJoystick')
+        img#myImage2(name='myImage2', src='#{data.sideImageIP}')
+  else
+    div.row#myMainRow(name='myMainRow')
+      div.col#myMainCol(name='myMainCol')
+        div#myLightSpacer(name='myLightSpacer') 
+        div#myTopLight(name='myTopLight') #{data.lightData.topValue}
+        div#myLightSpacer(name='myLightSpacer') 
+        div#myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
+        img#myImage(name='myImage', src='#{data.mainImageIP}')
+        div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
+        div#myLightSpacer(name='myLightSpacer') 
+        div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
+        div#myLightSpacer(name='myLightSpacer') 
+  
+  script(type='text/lab', id='data-user') !{data.user}
+  script(type='text/lab', id='data-bpu') !{data.bpu}
+  script(type='text/lab', id='data-bpuExp') !{data.bpuExp}
+  script(type='text/template', id='data-session') !{data.session}
+  script(type='text/lab', id='data-setLedsObj') !{data.setLedsObj}

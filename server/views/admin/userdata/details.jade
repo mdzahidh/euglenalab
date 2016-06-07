@@ -1,0 +1,115 @@
+extends ../../../layouts/admin
+
+block head
+  title User Data
+
+block feet
+  script(src='/views/admin/userdata/details.min.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-xs-12
+      div#header
+      div#userinfo
+      div#experiment
+  
+  script(type='text/template', id='tmpl-header')
+    div.page-header
+      h1
+        a(href='/admin/userdata/') User Data
+        |  / <%= username %>
+  
+  script(type='text/template', id='tmpl-userinfo')
+    fieldset
+      legend User Info 
+      div.alerts
+        |<% _.each(errors, function(err) { %>
+        div.alert.alert-danger.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          |<%- err %>
+        |<% }); %>
+        |<% if (success) { %>
+        div.alert.alert-info.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          | Changes have been saved.
+        |<% } %>
+      div.row.form-group(class!='<%- errfor.userinfo ? "has-error" : "" %>')
+        .col-xs-2(style='width:33%;')
+          label Username:
+          input.form-control(disabled=true, type='text', name='username', value!='<%= username %>')
+        .col-xs-2(style='width:33%;')
+          label(style='width:100%; float:left;') Group ID:
+          input.form-control(disabled=true, type='text', name='groupId', value!='<%= groupId %>')
+        .col-xs-2(style='width:33%;')
+          label(style='width:100%;') Group Name:
+          input.form-control(disabled=true, type='text', name='groupName', value!='<%= groupName %>')
+        .col-xs-2(style='width:33%;')
+          label Experiments:
+          select.form-control(name='experiments')
+        span.help-block <%- errfor.userinfo %>
+  
+  script(type='text/template', id='tmpl-experiment')
+    fieldset
+      legend Experiment
+      div.row.form-group()
+        .col-xs-2(style='width:24%;')
+          label Exp Id:
+          input.form-control(disabled=true, type='text', name='_id', value!='<%= _id %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%; float:left;') endRunDate:
+          input.form-control(disabled=true, type='text', name='endRunDate', value!='<%= endRunDate %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%;') bpuName:
+          input.form-control(disabled=true, type='text', name='bpuName', value!='<%= bpuName %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%;') msg:
+          input.form-control(disabled=true, type='text', name='msg', value!='<%= msg %>')
+      div.row.form-group()
+        .col-xs-2(style='width:33%;')
+          label pop1:
+          input.form-control(disabled=true, type='text', name='pop1', value!='<%= pop1 %>')
+        .col-xs-2(style='width:33%;')
+          label(style='width:100%; float:left;') dataFileName:
+          input.form-control(disabled=true, type='text', name='dataFileName', value!='<%= dataFileName %>')
+        .col-xs-2(style='width:33%;')
+          label(style='width:100%;') dataPath:
+          input.form-control(disabled=true, type='text', name='dataPath', value!='<%= dataPath %>')
+      div.row.form-group()
+        .col-xs-2(style='width:24%;')
+          label id_bp:
+          input.form-control(disabled=true, type='text', name='id_bp', value!='<%= id_bp %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%; float:left;') username_bp:
+          input.form-control(disabled=true, type='text', name='username_bp', value!='<%= username_bp %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%;') isLive_bp:
+          input.form-control(disabled=true, type='text', name='isLive_bp', value!='<%= isLive_bp %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%;') isAuto_bp:
+          input.form-control(disabled=true, type='text', name='isAuto_bp', value!='<%= isAuto_bp %>')
+      div.row.form-group()
+        .col-xs-2(style='width:24%;')
+          label autoType_bp:
+          input.form-control(disabled=true, type='text', name='autoType_bp', value!='<%= autoType_bp %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%; float:left;') useBpu_bp:
+          input.form-control(disabled=true, type='text', name='useBpu_bp', value!='<%= useBpu_bp %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%;') runTime_bp:
+          input.form-control(disabled=true, type='text', name='runTime_bp', value!='<%= runTime_bp %>')
+        .col-xs-2(style='width:24%;')
+          label(style='width:100%;') isAuto_bp:
+          input.form-control(disabled=true, type='text', name='startTime_bp', value!='<%= startTime_bp %>')
+      div.row.form-group()
+        .col-xs-2(style='width:33%;')
+          label eventsToRun_bp:
+          select.form-control(name='eventsToRun_bp')
+        .col-xs-2(style='width:33%;')
+          label eventsRan_bp:
+          select.form-control(name='eventsRan_bp')
+        .col-xs-2(style='width:33%;')
+          label(style='width:100%;') data_bp:
+          input.form-control(disabled=true, type='text', name='data_bp', value!='<%= data_bp %>')
+
+  script(type='text/template', id='data-record') !{data.record}
+  script(type='text/template', id='data-experiments') !{data.experiments}

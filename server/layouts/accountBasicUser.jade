@@ -1,0 +1,43 @@
+doctype html
+html
+  head
+    block head
+      title #{title}
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    script(src='/socket.io/socket.io.js')
+    link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+    block neck
+  body
+    div.navbar.navbar-default.navbar-fixed-top
+      div.container
+        div.navbar-header
+          a.navbar-brand(href='/basicUser/')
+            img.navbar-logo(src='/media/logo-symbol-64x64.png')
+            span.navbar-brand-label #{projectName}
+          button.navbar-toggle.collapsed(data-toggle='collapse', data-target='.my-navbar-collapse')
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        div.navbar-collapse.my-navbar-collapse.collapse
+          ul.nav.navbar-nav
+          ul.nav.navbar-nav.pull-right
+
+    div.page
+      div.container
+        block body
+
+    div.footer
+      div.container
+        div.inner
+          span.copyright
+            |&#169; #{copyrightYear} #{copyrightName}
+          div.clearfix
+
+    div.ajax-spinner
+      img(src='/media/ajax-pulse.gif')
+
+    //if lte IE 9
+      script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
+    script(src='/layouts/core.min.js?#{cacheBreaker}')
+
+    block feet

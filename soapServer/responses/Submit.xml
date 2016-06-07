@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <SubmitResponse xmlns="http://ilab.mit.edu">
+      <SubmitResult>
+        <vReport>
+          <accepted>xccepted</accepted>                
+          <warningMessages>
+            <string>warning1</string>                    
+            <string>warning2</string>
+          </warningMessages>
+          <errorMessage>xrrorMessage</errorMessage>           
+          <estRuntime>xstRuntime</estRuntime>               
+        </vReport>
+        <labExperimentID>xabExperimentID</labExperimentID>           
+        <minTimetoLive>xinTimetoLive</minTimetoLive>           
+        <wait>
+          <effectiveQueueLength>xffectiveQueueLength</effectiveQueueLength>    
+          <estWait>xstWait</estWait>                           
+        </wait>
+      </SubmitResult>
+    </SubmitResponse>
+  </soap:Body>
+</soap:Envelope>

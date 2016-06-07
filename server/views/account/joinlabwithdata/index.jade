@@ -1,0 +1,149 @@
+extends ../../../layouts/account
+
+block head
+  title Manage Experiments
+  style.
+    #headerLabel {font-size:24px; text-align:left; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    #browseLabel {font-size:18px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    #loadLabel {font-size:18px; text-align:left; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    #bpuLabel {font-size:18px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    #bpuLabelSM {font-size:14px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+
+    #myImage {width:20%; height:20%; float:left; margin:0px 5% 0px 0px;}
+    #bpuJoinButtonHidden {width:100%; height:100%; display:none; visibility:hidden;}
+
+    #bpuButton {margin:0% 10% 0% 4%; width:36%; height:10%}
+block neck
+  link(rel='stylesheet', href='/views/account/joinlabwithdata/index.min.css?#{cacheBreaker}')
+block feet
+
+  script(src='/views/account/joinlabwithdata/Views/BpuImage.js')
+  script(src='/views/account/joinlabwithdata/Views/LiveJoin.js')
+  script(src='/views/account/joinlabwithdata/Views/TextSubmit.js')
+  script(src='/views/account/joinlabwithdata/socket-client.js')
+  script(src='/views/account/joinlabwithdata/index.min.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-xs-12
+      h8#headerLabel(name='headerLabel', style='text-align:center;') Waiting for BPU update.
+      div#joinlive
+      div#textsubmit
+      div#bpuimage
+      div#filters(style='display:none;')
+      div#results-table
+      div#results-paging
+
+  script(type='text/template', id='tmpl-joinlive')
+    div.page-header
+      button.btn.btn-primary.btn-joinLiveNext#joinLiveNext(type='button', name='joinLiveNext', value=-1, style='width:100%; height:50px', disabled) Live Join: Click To Join
+      div.row(style='background-color:#afa2b3; width:100%; height:25%; margin:0% 0% 0% 0%;')
+        h8#browseLabel(name='joinLiveNextLabel', style='text-align:center;') No live experiments in queue.  Click To Join.
+
+  script(type='text/template', id='tmpl-textsubmit')
+    div.page-header(style='background-color:#ffffff; width:100%; height:150px; margin:0% 0% 0% 0%;')
+      button.btn.btn-primary.btn-submitTextNext#submitTextNext(type='button', name='submitTextNext', value=-1, style=' margin:0% 0% 0% 0%;width:100%; height:35%', disabled) Text Submit: Send To Queue
+      div.row(style='background-color:#afa2b3; width:100%; height:20%; margin:0% 0% 0% 0%;')
+        h8#browseLabel(name='browseLabel', style='text-align:center;') No text experiments in queue.  Browse to Add Experiments.
+      div.row(style='width:50%;  height:20%; margin:0% 0% 0% 0%;')
+        input(name='submitTextNextInput', type='file', , multiple='multiple', accept='.json, .txt, .csv', style='width:50%; float:left;')
+      div.row(style='background-color:#afa2b3; width:100%;  height:20%; margin:0% 0% 0% 0%;')
+        h8#loadLabel(name='loadLabel', style='text-align:left;') Browse to Load Text Files
+
+  script(type='text/template', id='tmpl-bpuimage')
+    div.page-header(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
+      h1(style='text-align:center;') Available Bpus
+      div.row(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
+        - for(var j=0;j<data.eugs.length;j++)
+            div.col-sm-3(style='background-color:#ffffff; margin-right:1%; height:320px;')
+              div.row(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
+                button.btn.btn-primary.btn-joinLiveBpu#bpuButton(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
+                button.btn.btn-primary.btn-submitTextBpu#bpuButton(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Text
+              div.row(style='background-color:#afa2b3; height:30%;')
+                label#bpuLabel(name=data.eugs[j].titleLabelJadeName) #{data.eugs[j].titleLabel}
+                label#bpuLabelSM(name=data.eugs[j].userLabelJadeName) #{data.eugs[j].userLabel}
+                label#bpuLabelSM(name=data.eugs[j].statusLabelJadeName) #{data.eugs[j].statusLabel}
+              div.row
+                img#myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)
+
+  script(type='text/template', id='tmpl-filters')
+    form.filters
+      div.row
+        div.col-sm-3
+          label Search
+          input.form-control(name='search', type='text')
+        div.col-sm-3
+          label Group
+          select.form-control(name='roles')
+            option(value='') any
+            option(value='admin') admin
+            option(value='account') account
+        div.col-sm-2
+          label Is Run Over
+          select.form-control(name='isRunOver')
+            option(value='') either
+            option(value='true', selected='selected') true
+            option(value='false') false
+        div.col-sm-2
+          label Sort By
+          select.form-control(name='sort')
+            option(value='_id') id &#9650;
+            option(value='-_id') id &#9660;
+            option(value='username') username &#9650;
+            option(value='-username') username &#9660;
+            option(value='email') email &#9650;
+            option(value='-email') email &#9660;
+        div.col-sm-2
+          label Limit
+          select.form-control(name='limit')
+            option(value='10') 10 items
+            option(value='20', selected='selected') 20 items
+            option(value='50') 50 items
+            option(value='100') 100 items
+
+  script(type='text/template', id='tmpl-results-table')
+    h1(style='text-align:center;') All Experiment Data
+    table.table.table-striped
+      thead
+        tr
+          th
+          th Submission Time
+          th Bpu Name
+          th.stretch Tag
+          th exp_status
+          th id
+      tbody#results-rows
+
+  script(type='text/template', id='tmpl-results-row')
+    td
+      input.btn.btn-default.btn-sm.btn-details(type='button', value='View')
+      input.btn.btn-default.btn-sm.btn-download-tar(name='downloadTar', type='button', value='Download')
+      a#downloadLink(href='/media/eug3_response.svg', download='', hidden='true') Download
+      //- input.btn.btn-default.btn-sm.btn-video(type='button', name='video', value='See Video')
+      //- input.btn.btn-default.btn-sm.btn-details(type='button', value='Resubmit', disabled)
+    td <%= exp_submissionTime %>
+    td <%= exp_lastResort.bpuName %>
+    td <%= exp_metaData.tag %>
+    td <%= exp_status %>
+    td <%= _id %>
+
+  script(type='text/template', id='tmpl-results-empty-row')
+    tr
+      td(colspan='5') no documents matched
+
+  script(type='text/template', id='tmpl-results-paging')
+    div.well
+      div.btn-group.pull-left
+        button.btn.btn-default(disabled=true) Page <%= pages.current %> of <%= pages.total %>
+        button.btn.btn-default(disabled=true) Rows <%= items.begin %> - <%= items.end %> of <%= items.total %>
+      div.btn-group.pull-right
+        button.btn.btn-default.btn-page.btn-prev(data-page!='<%= pages.prev %>') Prev
+        button.btn.btn-default.btn-page.btn-next(data-page!='<%= pages.next %>')  Next
+      div.clearfix
+
+
+  script(type='text/template', id='data-bpus') !{data.bpus}
+  script(type='text/template', id='data-results') !{data.results}
+  script(type='text/template', id='data-user') !{data.user}
+  script(type='text/template', id='data-session') !{data.session}
+  script(type='text/template', id='data-joinQueueDataObj') !{data.joinQueueDataObj}

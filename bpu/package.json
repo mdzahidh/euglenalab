@@ -1,0 +1,23 @@
+{
+  "name": "bpu",
+  "version": "0.0.0",
+  "description": "general rasberry pi bpu for microscope",
+  "main": "bpu.js",
+  "dependencies": {
+    "async": "~1.4.2",
+    "http": "0.0.0",
+    "log4js": "^0.6.29",
+    "net": "~1.0.2",
+    "serialport": "~1.7.4",
+    "socket.io": "~1.3.5",
+    "socket.io-client": "~1.3.5",
+    "tar.gz": "~0.1.1",
+    "wiring-pi": "~2.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "clitton",
+  "license": "BSD-2-Clause"
+}

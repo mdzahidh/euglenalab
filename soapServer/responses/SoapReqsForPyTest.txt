@@ -1,0 +1,137 @@
+#unique identifier (GUID) for the service broker at Northwestern
+identifier = 'C56A80D928264A0A900B30D610EDCB95'
+#Password Stanford provides
+euglenaPasskey = 'ZTUzYzU3OGE5NmM2MjZmNDIzNTVhMjlm'
+
+cancel = '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>\
+      <passKey>%s</passKey> \
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <Cancel xmlns="http://ilab.mit.edu">\
+      <experimentID>%s</experimentID>\
+    </Cancel>\
+  </soap:Body>\
+</soap:Envelope>'
+
+queue_length = '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>\
+      <passKey>%s</passKey>\
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <GetEffectiveQueueLength xmlns="http://ilab.mit.edu">\
+      <userGroup>0</userGroup>\
+      <priorityHint>0</priorityHint>\
+    </GetEffectiveQueueLength>\
+  </soap:Body>\
+</soap:Envelope>'
+
+experiment_status = '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>\
+      <passKey>%s</passKey> \
+    </AuthHeader> \
+  </soap:Header>\
+  <soap:Body>\
+    <GetExperimentStatus xmlns="http://ilab.mit.edu">\
+      <experimentID>%s</experimentID>\
+    </GetExperimentStatus>
+  </soap:Body>
+</soap:Envelope>'
+
+lab_config = '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>\
+      <passKey>%s</passKey>\
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <GetLabConfiguration xmlns="http://ilab.mit.edu">\
+      <userGroup>nan</userGroup>\
+    </GetLabConfiguration>\
+  </soap:Body>\
+</soap:Envelope>'
+
+
+lab_status = '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>\
+      <passKey>%s</passKey>\
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <GetLabStatus xmlns="http://ilab.mit.edu" />\
+  </soap:Body>\
+</soap:Envelope>'
+
+retrieve_result =  '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>  \
+      <passKey>%s</passKey> \
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <RetrieveResult xmlns="http://ilab.mit.edu">\
+      <experimentID>%s</experimentID>\
+    </RetrieveResult>\
+  </soap:Body>\
+</soap:Envelope>'
+
+experiment_submit = '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>  \
+      <passKey>%s</passKey> \
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <Submit xmlns="http://ilab.mit.edu">\
+      <experimentID>%s</experimentID>\
+      <experimentSpecification>%s</experimentSpecification>\
+      <userGroup>0</userGroup>\
+      <priorityHint>0</priorityHint>\
+    </Submit>\
+  </soap:Body>\
+</soap:Envelope>'
+
+validate = '<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Header>\
+    <AuthHeader xmlns="http://ilab.mit.edu">\
+      <identifier>%s</identifier>\
+      <passKey>%s</passKey>\
+    </AuthHeader>\
+  </soap:Header>\
+  <soap:Body>\
+    <Validate xmlns="http://ilab.mit.edu">\
+      <experimentSpecification>%s</experimentSpecification>\
+      <userGroup>%s</userGroup> \
+    </Validate>\
+  </soap:Body>\
+</soap:Envelope>'
+
+
+cancel = cancel % (str(identifier), str(euglenaPasskey), str(experiment_id))
+queue_length = queue_length % (str(identifier), str(euglenaPasskey))
+experiment_status = experiment_status %(str(identifier), str(euglenaPasskey), str(experiment_id))
+lab_config = lab_config % (str(identifier), str(euglenaPasskey))
+lab_status = lab_status % (str(identifier), str(euglenaPasskey))
+retrieve_result = retrieve_result %(str(identifier), str(euglenaPasskey), str(experiment_id))
+experiment_submit = experiment_submit %(str(identifier), str(euglenaPasskey), str(experiment_id), str(experiment_spec))
+validate = validate % (str(identifier), str(euglenaPasskey), str(experiment_spec), '0')

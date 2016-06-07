@@ -1,0 +1,56 @@
+{
+    "name": "Tester",
+    "tag": "v8xB9B4wIyNxcO6AAAAA",
+    "isLive": false,
+    "events": [
+        {
+            "time": 0,
+            "topValue": 50,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0
+        },
+        {
+            "time": 1000,
+            "topValue": 100,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0
+        },
+        {
+            "time": 2000,
+            "topValue": 50,
+            "rightValue": 50,
+            "bottomValue": 0,
+            "leftValue": 0
+        },
+        {
+            "time": 3000,
+            "topValue": 0,
+            "rightValue": 100,
+            "bottomValue": 50,
+            "leftValue": 0
+        },
+        {
+            "time": 4000,
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 100,
+            "leftValue": 50
+        },
+        {
+            "time": 5000,
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 100
+        },
+        {
+            "time": 6000,
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0
+        }
+    ]
+}

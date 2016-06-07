@@ -1,0 +1,82 @@
+extends ../../layouts/livejoylab_v1a
+
+block head
+  title Live Joystick Lab 
+  //meta(http-equiv='refresh', content='30')
+  script(src="/views/livejoylab/libs/Canvas_Joystick.js")
+block neck
+  style.
+    #myMainRow {
+      position:absolute; 
+      top:0px; 
+      background-color:#ffffff; 
+      height:100%; 
+      width:100%; 
+      float:left;
+    }
+    #myMainCol {
+      background-color:#ffffff; 
+      height:100%; 
+      width:100%; 
+      float:left;
+    }
+    #myTopLight {
+      background-color:rgba(255,255,0,#{data.lightData.topLightAlpha}); 
+      height:#{data.divInfo.lightShort}; 
+      width:#{data.divInfo.lightLong}; 
+      float:left; 
+      text-align:center;
+    }
+    #myLeftLight {
+      background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha}); 
+      height:#{data.divInfo.lightLong}; 
+      width:#{data.divInfo.lightShort}; 
+      float:left; 
+      text-align:center;
+    }
+    #myImage {
+      background-color:#ffff00;   
+      height:#{data.divInfo.imageHeight};   
+      width:#{data.divInfo.imageWidth};  
+      float:left;
+    }
+    #myRightLight {
+      background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha}); 
+      height:#{data.divInfo.lightLong}; 
+      width:#{data.divInfo.lightShort}; 
+      float:left; 
+      text-align:center;
+    }
+    #myBottomLight {
+      background-color:rgba(255,255,0,#{data.lightData.bottomLightAlpha}); 
+      height:#{data.divInfo.lightShort}; 
+      width:#{data.divInfo.lightLong}; 
+      float:left; text-align:center;
+    }
+    #myLightSpacer {
+      background-color:rgba(255,255,255,0.5); 
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightShort};
+      float:left; 
+      text-align:center;
+    }
+
+block feet
+  script(src='/views/livejoylab/index.min.js?#{cacheBreaker}')
+
+block body
+  div.row#myMainRow(name='myMainRow')
+    label#labTimeLeftLabel(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
+    div.col#myMainCol(name='myMainCol')
+      div#myLightSpacer(name='myLightSpacer') 
+      div#myTopLight(name='myTopLight') #{data.lightData.topValue}
+      div#myLightSpacer(name='myLightSpacer') 
+      div#myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
+      img#myImage(name='myImage', src='#{data.mainImageIP}')
+      div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
+      div#myLightSpacer(name='myLightSpacer') 
+      div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
+      div#myLightSpacer(name='myLightSpacer') 
+  
+  script(type='text/lab', id='data-account') !{data.account}
+  script(type='text/lab', id='data-user') !{data.user}

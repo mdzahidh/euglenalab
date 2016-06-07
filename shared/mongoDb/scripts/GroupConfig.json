@@ -1,0 +1,80 @@
+[
+  {
+    "name":"golabz",
+    "description":"golabz",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":false,
+      "doAllowScript":false
+    }
+  },
+  {
+    "name":"admin",
+    "description":"admin",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowScript":true
+    }
+  },
+  {
+    "name":"default",
+    "description":"default",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowScript":false
+    }
+  },
+  {
+    "name":"nwg",
+    "description":"nwg",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowScript":false
+    }
+  },
+  {
+    "name":"museum",
+    "description":"long term user",
+    "users":[],
+    "settings":{
+      "doSaveImages":false,
+      "doSaveLightData":false,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":false,
+      "doAllowScript":false
+    }
+  },
+  {
+    "name":"scripter",
+    "description":"scripter",
+    "users":[],
+    "settings":{
+      "doSaveImages":true,
+      "doSaveLightData":true,
+      "doMakeVideo":false,
+      
+      "doAllowTextFile":true,
+      "doAllowScript":true
+    }
+  }
+]

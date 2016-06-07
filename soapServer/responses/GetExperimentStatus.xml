@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetExperimentStatusResponse xmlns="http://ilab.mit.edu">
+      <GetExperimentStatusResult>
+        <statusReport>
+          <statusCode>xtatusCode</statusCode>    
+          <wait>
+            <effectiveQueueLength>xffectiveQueueLength</effectiveQueueLength>   
+            <estWait>xstWait</estWait>                          
+          </wait>
+          <estRuntime>xstRuntime</estRuntime>                      
+          <estRemainingRuntime>xstRemainingRuntime</estRemainingRuntime>    
+        </statusReport>
+        <minTimetoLive>xinTimetoLive</minTimetoLive>                  
+      </GetExperimentStatusResult>
+    </GetExperimentStatusResponse>
+  </soap:Body>
+</soap:Envelope>

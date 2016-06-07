@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <soap:Body>
+    <GetLabConfigurationResponse xmlns="http://ilab.mit.edu">
+      <GetLabConfigurationResult>
+        &lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
+        &lt;!--&lt;!DOCTYPE labConfiguration SYSTEM "LabConfiguration.dtd"&gt;--&gt;
+        &lt;labConfiguration title="Euglena" version="0.1"&gt;
+          &lt;navmenuPhoto&gt;
+            &lt;image&gt;&lt;/image&gt;
+          &lt;/navmenuPhoto&gt;
+          &lt;labCamera&gt;
+            &lt;url&gt;
+            &lt;/url&gt;
+          &lt;/labCamera&gt;
+          &lt;labInfo&gt;
+            &lt;text&gt;
+            &lt;/text&gt;
+            &lt;url&gt;
+            &lt;/url&gt;
+          &lt;/labInfo&gt;
+          &lt;configuration&gt;
+          &lt;/configuration&gt;
+          &lt;validation&gt;
+          &lt;/validation&gt;
+          &lt;experimentSpecification&gt;
+            &lt;lightData /&gt;
+          &lt;/experimentSpecification&gt;
+          &lt;experimentResult&gt;
+            &lt;base64targz/&gt;
+          &lt;/experimentResult&gt;
+        &lt;/labConfiguration&gt;
+      </GetLabConfigurationResult>
+    </GetLabConfigurationResponse>
+  </soap:Body>
+</soap:Envelope>

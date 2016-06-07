@@ -1,0 +1,21 @@
+extends ../layouts/default
+
+block head
+  title Euglena BioLab 
+
+block neck
+  link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
+
+block feet
+  script(src='/views/index.min.js?#{cacheBreaker}')
+
+block body
+  div.jumbotron
+    h1 Euglena BioLab
+    p.lead
+      | Interactive BioTech.
+      div
+        a.btn.btn-primary.btn-lg(href='/signup/') Create an Account
+        |  or&nbsp;
+        a.btn.btn-warning.btn-lg(href='/login/forgot/') Reset Your Password
+      div.clearfix

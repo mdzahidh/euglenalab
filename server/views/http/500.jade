@@ -1,0 +1,10 @@
+extends ../../layouts/default
+
+block head
+  title Server Error
+
+block body
+  h1 Server Error
+  p.lead #{err}
+  if err.stack
+    pre #{err.stack}

@@ -1,0 +1,147 @@
+{
+    "id": "55c51eeb68a651f93b147242",
+    "username": "zhossain",
+    "isLive": false,
+    "isAuto": false,
+    "autoType": null,
+    "useBpu": null,
+    "data": [
+        {
+            "time": 0,
+            "topValue": 100,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0
+        },
+        {
+            "time": 30000,
+            "topValue": 0,
+            "rightValue": 100,
+            "bottomValue": 0,
+            "leftValue": 0
+        },
+        {
+            "time": 60000,
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 100,
+            "leftValue": 0
+        },
+        {
+            "time": 90000,
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 100
+        },
+        {
+            "time": 120000,
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0
+        }
+    ],
+    "runTime": 120000,
+    "startTime": 1438981867796,
+    "eventsToRun": [
+        {
+            "index": 0,
+            "time": 0,
+            "leftValue": 0,
+            "bottomValue": 0,
+            "rightValue": 0,
+            "topValue": 100
+        },
+        {
+            "index": 1,
+            "time": 30000,
+            "leftValue": 0,
+            "bottomValue": 0,
+            "rightValue": 100,
+            "topValue": 0
+        },
+        {
+            "index": 2,
+            "time": 60000,
+            "leftValue": 0,
+            "bottomValue": 100,
+            "rightValue": 0,
+            "topValue": 0
+        },
+        {
+            "index": 3,
+            "time": 90000,
+            "leftValue": 100,
+            "bottomValue": 0,
+            "rightValue": 0,
+            "topValue": 0
+        },
+        {
+            "index": 4,
+            "time": 120000,
+            "leftValue": 0,
+            "bottomValue": 0,
+            "rightValue": 0,
+            "topValue": 0
+        }
+    ],
+    "eventsRan": [
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1438981867799
+        },
+        {
+            "topValue": 100,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1438981867960
+        },
+        {
+            "topValue": 0,
+            "rightValue": 100,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1438981897803
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 100,
+            "leftValue": 0,
+            "time": 1438981927802
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 100,
+            "time": 1438981957802
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1438981987802
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1438981987804
+        }
+    ],
+    "expStatus": "run complete",
+    "timeLeft": -3,
+    "wasLightDataSaved": true,
+    "bpuNameFromBpu": "eug0",
+    "dataPath": "/myData/mServer/bpu_eug0/tars/bpu_1438981987819_55c51eeb68a651f93b147242.tar.gz",
+    "dataFileName": "bpu_1438981987819_55c51eeb68a651f93b147242.tar.gz",
+    "dataParentFolder": "/myData/mServer/bpu_eug0/tars"
+}

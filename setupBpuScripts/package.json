@@ -1,0 +1,16 @@
+{
+  "name": "setbpuscripts",
+  "version": "1.0.0",
+  "description": "'setup bpu mountdatasave folders and check bpu fucntion'",
+  "main": "checkImageStreamer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "clitton",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.5.2",
+    "log4js": "^0.6.33",
+    "socket.io-client": "^1.4.5"
+  }
+}

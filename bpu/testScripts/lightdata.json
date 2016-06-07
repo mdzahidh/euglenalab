@@ -1,0 +1,81 @@
+{
+    "eventsToRun": [
+        {
+            "topValue": 100,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1458700985316,
+            "setTime": 7,
+            "askTime": 0
+        },
+        {
+            "topValue": 0,
+            "rightValue": 100,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1458701015312,
+            "setTime": 30002,
+            "askTime": 30000
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 100,
+            "leftValue": 0,
+            "time": 1458701045313,
+            "setTime": 60004,
+            "askTime": 60000
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 100,
+            "time": 1458701075314,
+            "setTime": 90005,
+            "askTime": 90000
+        },
+        {
+            "topValue": 0,
+            "rightValue": 0,
+            "bottomValue": 0,
+            "leftValue": 0,
+            "time": 1458701105316,
+            "setTime": 120007,
+            "askTime": 120000
+        }
+    ],
+    "metaData": {
+        "userSubmitDate": 1458700935280,
+        "startRunDate": 1458700984617,
+        "endRunDate": 1458701106096,
+        "submitToRunTime": 49337,
+        "runToEndRunTime": 121479,
+        "expId": "56f2028785457b9c32f215ec",
+        "bpuName": "eug3",
+        "tag": "isAuto",
+        "description": "",
+        "magnification": 4,
+        "expTypeString": "isAuto",
+        "numFrames": 883,
+        "closeInfo": {
+            "imageCount": 883,
+            "didFindImageCount": true,
+            "framesPerSecond": 7.358333333333333,
+            "didFindFPS": true,
+            "didRunRenameScript": true,
+            "didRunMovieScript": true,
+            "soapId": null,
+            "tempSoapFolder": null,
+            "didForceSoapMove": false,
+            "didSoapMove": false,
+            "writeJsonPath": "/myData/bpu/images/lightdata.json",
+            "didSaveJson": false,
+            "didRemoveImages": false,
+            "tarInitPath": "/myData/bpu/images",
+            "tarFinalPath": "/myData/bpu/tars/eug3_56f2028785457b9c32f215ec_scripterResponse.tar.gz",
+            "didMakeTar": false
+        }
+    }
+}

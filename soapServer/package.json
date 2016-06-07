@@ -1,0 +1,16 @@
+{
+  "name": "soapserver",
+  "version": "0.0.0",
+  "description": "nwg connects to this server, soap reqs routed to main server",
+  "main": "soap_server_socket_8081.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "clitton",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "async": "^1.4.2",
+    "mongoose": "^4.1.7",
+    "socket.io-client": "^1.3.6"
+  }
+}

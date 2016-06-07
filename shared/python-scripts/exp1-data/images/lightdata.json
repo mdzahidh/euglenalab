@@ -1,0 +1,51 @@
+[
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 1438981867799
+    },
+    {
+        "topValue": 100,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 1438981867960
+    },
+    {
+        "topValue": 0,
+        "rightValue": 100,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 1438981897803
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 100,
+        "leftValue": 0,
+        "time": 1438981927802
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 100,
+        "time": 1438981957802
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 1438981987802
+    },
+    {
+        "topValue": 0,
+        "rightValue": 0,
+        "bottomValue": 0,
+        "leftValue": 0,
+        "time": 1438981987804
+    }
+]

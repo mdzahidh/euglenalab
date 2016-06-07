@@ -1,0 +1,10 @@
+timestamp:Wed_Mar_23_16:36:12_UTC_2016
+inFPS:15
+inX:640
+inY:480
+outHttpPort:8080
+outHttpWeb:./www
+outFilePath:/bpuData/tempExpData
+outFileMs:100
+isRaspPiCam:0
+

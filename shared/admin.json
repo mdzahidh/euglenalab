@@ -1,0 +1,14 @@
+{
+    "settings": {
+        "doSaveImages": true,
+        "doSaveLightData": true,
+        "doMakeVideo": false,
+        "doAllowTextFile": true,
+        "doAllowScript": true,
+        "doNotSave": false
+    },
+    "name": "admin",
+    "description": "admin",
+    "users": [],
+    "priority": 99
+}
