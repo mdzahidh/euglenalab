@@ -3,7 +3,7 @@ var nodePath=process.env.NODE_PATH;
 var nodePath='node_modules'
 module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: grunt.file.readJSON('./package.json'),
     copy: {
       vendor: {
         files: [
