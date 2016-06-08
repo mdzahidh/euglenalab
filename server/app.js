@@ -136,50 +136,56 @@ app.server.listen(app.config.port, function() {
 
       app.bpuControllerSocket=socketClient(addr, {multiplex:false, reconnection:true});
 
-      app.bpuControllerSocket.on('connect', function() {
+      app.bpuControllerSocket.on('disconnect', function(){
+        myLogger.error('BPU Controller disconnected');
+      });
 
+      app.bpuControllerSocket.on('connect', function() {
+        myLogger.info('BPU controller connected')
         app.bpuControllerSocket.emit('setConnection', serverInfo, function(err, bpuAuthObject) {
           if(err) {
-            console.log('bpuControllerSocket setConnection error:'+err);
+            myLogger.error('bpuControllerSocket setConnection error:'+err);
           } else {
-            console.log('bpuControllerSocket setConnection auth okay '+bpuAuthObject.Name);
+            myLogger.info('bpuControllerSocket setConnection auth okay '+bpuAuthObject.Name);
             app.bpuAuthObject=bpuAuthObject;
-
-            //update is joined in user socket connection
-            var updateCnt=0;
-            app.bpuControllerSocket.on('update', function(bpuDocs, listExperiment, runningQueueTimesPerBpuName) {
-              _compileClientUpdateFromController(bpuDocs, listExperiment, runningQueueTimesPerBpuName);
-            });
-
-            //Routes calls to user sockets if found
-            app.bpuControllerSocket.on('activateLiveUser', function(session, liveUserConfirmTimeout, callbackToBpuController) {
-              console.log('activateLiveUser', session.sessionID, session.socketID, liveUserConfirmTimeout);
-              var userSocket=app.myFunctions.getSocket(app.io, session.socketID);
-              if(userSocket) {
-                userSocket.emit(app.mainConfig.userSocketStrs.user_activateLiveUser, session, liveUserConfirmTimeout, function(resObj) {
-                  console.log('activateLiveUser', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
-                  callbackToBpuController(resObj);
-                });
-              } else {
-                console.log("Couldn't find socketId");
-                callbackToBpuController({err:'could not find socketID', didConfirm:false});
-              }
-            });
-            app.bpuControllerSocket.on('sendUserToLiveLab', function(session, callbackToBpuController) {
-              console.log('sendUserToLiveLab', session.sessionID, session.socketID);
-              var userSocket=app.myFunctions.getSocket(app.io, session.socketID);
-              if(userSocket) {
-                userSocket.emit(app.mainConfig.userSocketStrs.user_sendUserToLiveLab, function(resObj) {
-                  console.log('sendUserToLiveLab', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
-                  callbackToBpuController(resObj);
-                });
-              } else {
-                callbackToBpuController({err:'could not find socketID', didConfirm:false});
-              }
-            });
           }
         });
       });
+
+      //update is joined in user socket connection
+      app.bpuControllerSocket.on('update', function(bpuDocs, listExperiment, runningQueueTimesPerBpuName) {
+        _compileClientUpdateFromController(bpuDocs, listExperiment, runningQueueTimesPerBpuName);
+      });
+
+      //Routes calls to user sockets if found
+      app.bpuControllerSocket.on('activateLiveUser', function(session, liveUserConfirmTimeout, callbackToBpuController) {
+        var userSocket=app.myFunctions.getSocket(app.io, session.socketID);
+        if(userSocket) {
+          myLogger.debug('activateLiveUser: sessionID: ' + session.sessionID + " socketID: " + session.socketID );
+          userSocket.emit(app.mainConfig.userSocketStrs.user_activateLiveUser, session, liveUserConfirmTimeout, function(resObj) {
+            //console.log('activateLiveUser', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
+            myLogger.debug('activeLiveUser Reply: ' + session.sessionID + " socketID: " + session.socketID + ', with: ' + resObj.didConfirm  + ' err:' + resObj.err);
+            callbackToBpuController(resObj);
+          });
+        } else {
+          myLogger.error("activateLiveUser: Couldn't find socketId");
+          callbackToBpuController({err:'could not find socketID', didConfirm:false});
+        }
+      });
+      app.bpuControllerSocket.on('sendUserToLiveLab', function(session, callbackToBpuController) {
+        var userSocket=app.myFunctions.getSocket(app.io, session.socketID);
+        if(userSocket) {
+          myLogger.debug('sendUserToLiveLab sessionID: ' + session.sessionID + " socketID: " + session.socketID );
+          userSocket.emit(app.mainConfig.userSocketStrs.user_sendUserToLiveLab, function(resObj) {
+            //console.log('sendUserToLiveLab', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
+            myLogger.debug('sendUserToLiveLab Reply: ' + session.sessionID + " socketID: " + session.socketID + ', err:' + resObj.err);
+            callbackToBpuController(resObj);
+          });
+        } else {
+          callbackToBpuController({err:'could not find socketID', didConfirm:false});
+        }
+      });
+
       callback(null);
     };
 
