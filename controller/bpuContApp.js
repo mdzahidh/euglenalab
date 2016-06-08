@@ -35,7 +35,7 @@ var app={
     liveUserConfirmTimeout:15000,
     lastScripterSendDate:new Date(),
     doSendScripters:true,
-    ScripterSendInterval: 20*60*1000,
+    ScripterSendInterval: 30*60*1000,
     nextToSendBpuName:null,
   },
   runData:{

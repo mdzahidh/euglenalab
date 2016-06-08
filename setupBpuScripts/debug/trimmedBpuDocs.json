@@ -1,14 +1,77 @@
 {
-    "fake": {
-        "index": -1,
-        "name": "fake",
+    "eug0": {
+        "index": 0,
+        "name": "eug0",
         "isOn": false,
         "allowedGroups": [
             "admin",
-            "default"
+            "default",
+            "scripter",
+            "nwg",
+            "golabz"
         ]
     },
-   "eug18": {
+    "eug1": {
+        "index": 1,
+        "name": "eug1",
+        "isOn": false,
+        "allowedGroups": [
+            "admin",
+            "default",
+            "scripter",
+            "nwg",
+            "golabz"
+        ]
+    },
+    "eug2": {
+        "index": 2,
+        "name": "eug2",
+        "isOn": false,
+        "allowedGroups": [
+            "admin",
+            "default",
+            "scripter",
+            "nwg",
+            "golabz"
+        ]
+    },
+    "eug3": {
+        "index": 3,
+        "name": "eug3",
+        "isOn": false,
+        "allowedGroups": [
+            "admin",
+            "default",
+            "scripter",
+            "nwg",
+            "golabz"
+        ]
+    },
+    "eug15": {
+        "index": 15,
+        "name": "eug15",
+        "isOn": false,
+        "allowedGroups": [
+            "admin",
+            "default",
+            "scripter",
+            "nwg",
+            "golabz"
+        ]
+    },
+    "eug16": {
+        "index": 16,
+        "name": "eug16",
+        "isOn": false,
+        "allowedGroups": [
+            "admin",
+            "default",
+            "scripter",
+            "nwg",
+            "golabz"
+        ]
+    },
+    "eug18": {
         "index": 18,
         "name": "eug18",
         "isOn": true,

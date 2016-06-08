@@ -1,4 +1,4 @@
-./euglena -i $1 -tv
+./tools/euglena -i $1 -tv
 if [ ! -f $1/tracks_thresholded_10.avi ]; then
     exit -1
 fi

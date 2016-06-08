@@ -42,9 +42,9 @@ app.runps={
   finalBpuDataDir:'/home/mserver/finalBpuData',
   symlinkDataDir:'./server/public/media/finalBpuDataLinks',
   //Scripts
-  moiveScript:'./euglenamovie -i', //./euglenamovie -i <path-to-the-image folder> -o /some/other/folder/movie.mp4
-  procMovieScript:'./euglena -i', //./euglena -i <path-to-the-movie folder> -tv
-  procMovieScript2:'./tracks.sh',
+  moiveScript:'./tools/euglenamovie -i', //./euglenamovie -i <path-to-the-image folder> -o /some/other/folder/movie.mp4
+  procMovieScript:'./tools/euglena -i', //./euglena -i <path-to-the-movie folder> -tv
+  procMovieScript2:'./tools/tracks.sh',
 };
 
 //setup mongoose
@@ -756,7 +756,7 @@ var p_rmJpgsAndMvToFinal=function(callback) {
     var endPath=app.runps.finalBpuDataDir+'/'+expDoc._id+'/';
     var rmJpgs='rm -f '+expDoc.proc_startPath+'/*.jpg';
     var mvFiles='mv '+expDoc.proc_startPath+'/ '+app.runps.finalBpuDataDir+'/';
-    var cmdStr=rmJpgs+' && '+mvFiles;
+    var cmdStr=rmJpgs+' && '+mvFiles;  
 
     generalFuncs.runBashCommand(cmdStr, function(err, stdout) {
 

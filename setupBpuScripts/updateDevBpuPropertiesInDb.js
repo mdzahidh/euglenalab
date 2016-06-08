@@ -23,7 +23,7 @@ var app={
 
   //Debug
   debug:{ 
-    doWriteTrimmedDocsToJson:false,
+    doWriteTrimmedDocsToJson:true,
     pathToWriteTrimmedDocsToJson:'./debug/trimmedBpuDocs.json',
   },
 

@@ -1,3 +1,9 @@
 [submodule "bpu/ImageStreamer/raspicam/mjpg-streamer"]
 	path = bpu/ImageStreamer/raspicam/mjpg-streamer
 	url = https://github.com/jacksonliam/mjpg-streamer.git
+[submodule "processing/euglenatracer"]
+	path = processing/euglenatracer
+	url = https://github.com/mdzahidh/euglenatracer.git
+[submodule "processing/euglenamovie"]
+	path = processing/euglenamovie
+	url = https://github.com/mdzahidh/euglenamovie.git

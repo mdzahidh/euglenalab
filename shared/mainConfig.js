@@ -14,7 +14,7 @@ parts.forEach(function(part) {
       isProduction=true;
       isDevTesting=false;
       didFindServer=true;
-      liveUserLabTime=60*1000;
+      liveUserLabTime=15*1000;
       liveMuseumUserLabTime=25*60*1000;
     } else if(part==='dev-processingFeature') {
       isDev=true;
