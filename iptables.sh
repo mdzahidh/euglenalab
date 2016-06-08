@@ -20,15 +20,18 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 20090 -j DNAT --to 192.168.1.2
 sudo iptables -t nat -A PREROUTING -p tcp --dport 20095 -j DNAT --to 192.168.1.219:8080
 sudo iptables -t nat -A PREROUTING -p tcp --dport 20100 -j DNAT --to 192.168.1.220:8080
 
+# Enabling port forwarding for the BPUs
+sudo iptables -A FORWARD -d 192.168.1.218 -p tcp --dport 8080 -j ACCEPT
+sudo iptables -A FORWARD -d 192.168.1.219 -p tcp --dport 8080 -j ACCEPT
+sudo iptables -A FORWARD -d 192.168.1.220 -p tcp --dport 8080 -j ACCEPT
+
+sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+
 # For the BPU Cameras for internal packets
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 20090 -j DNAT --to 192.168.1.218:8080
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 20095 -j DNAT --to 192.168.1.219:8080
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 20100 -j DNAT --to 192.168.1.220:8080
 
-# Enabling port forwarding for the BPUs
-sudo iptables -A FORWARD -d 192.168.1.218 -p tcp --dport 8080 -j ACCEPT
-sudo iptables -A FORWARD -d 192.168.1.219 -p tcp --dport 8080 -j ACCEPT
-sudo iptables -A FORWARD -d 192.168.1.220 -p tcp --dport 8080 -j ACCEPT
 
 # So that Public IP addresses works internally too
 sudo iptables -t nat -I OUTPUT -p tcp --dport 80 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000
