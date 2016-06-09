@@ -339,9 +339,17 @@
       //Update BpuView with updateObj.bpuPackage
       //Update BpuView with updateObj.bpuPackage
       //Update BpuView with updateObj.bpuPackage
+
+      var isFailed = function( status ) {
+        if( (status.indexOf('Failed') >= 0) || (status === 'offline') ) {
+          return true;
+        }
+        return false;
+      }
+
       if(updateObj.bpusPackage && updateObj.bpusPackage.forEach && updateObj.bpusPackage.length>0) {
         updateObj.bpusPackage.forEach(function(bpuPack) {
-          if(bpuPack.bpuStatus === 'offline'){
+          if(isFailed(bpuPack.bpuStatus)){
             //Title
             app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name + ' (N/A)');
             //User

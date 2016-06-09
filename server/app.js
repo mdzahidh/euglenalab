@@ -300,13 +300,22 @@ var _compileClientUpdateFromController=function(bpuDocs, listExperiment, running
     return false;
   };
 
+  var isLiveActive = function( status ) {
+    if (status == app.mainConfig.bpuStatusTypes.running ||
+        status == app.mainConfig.bpuStatusTypes.pendingRun ||
+        status == app.mainConfig.bpuStatusTypes.finalizing ||
+        status == app.mainConfig.bpuStatusTypes.reseting ) {
+      return true;
+    }
+    return false;
+  }
   //Create bpu updates and sort active bpus experiments into session id
   var bpusUpdate=[];
   bpuDocs.forEach(function(bpuDoc) {
 
     var liveBpuExperimentPart = null;
 
-    if (bpuDoc.bpuStatus !== app.mainConfig.bpuStatusTypes.offline ){
+    if (isLiveActive(bpuDoc.bpuStatus)){
       liveBpuExperimentPart = {
         username:bpuDoc.liveBpuExperiment.username,
         bc_timeLeft:bpuDoc.liveBpuExperiment.bc_timeLeft,
