@@ -1,5 +1,5 @@
 module.exports = {
-    mode: 'production',
+    mode: 'dev',
     publicIP: '171.65.102.104',
 
     production: {

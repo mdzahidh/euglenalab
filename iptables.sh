@@ -13,6 +13,9 @@ sudo iptables -X; # delete all extra chains
 
 # For the webserver for external and internal packets
 sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
+# sudo iptables -t nat -A PREROUTING -p tcp --dport 8080 -j REDIRECT --to-port 4000
+# sudo iptables -t nat -A PREROUTING -p tcp --dport 8081 -j REDIRECT --to-port 5000
+
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 3000
 
 # For the BPU Cameras for external packets
