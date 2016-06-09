@@ -1,63 +1,36 @@
-var routerIP='171.65.103.23';
-var parts=__dirname.split('/');
+var deployment = require('../deployment');
 
-var isDevTesting=true;
-var liveUserLabTime=30*1000;
-var liveMuseumUserLabTime=10*60*1000;
-var isDevTesting=false;
-var isDev=false;
-var isProduction=true;
-var didFindServer=false;
-parts.forEach(function(part) {
-  if(!didFindServer) {
-    if(part==='master_euglenalab') {
-      isProduction=true;
-      isDevTesting=false;
-      didFindServer=true;
-      liveUserLabTime=15*1000;
-      liveMuseumUserLabTime=25*60*1000;
-    } else if(part==='dev-processingFeature') {
-      isDev=true;
-      isDevTesting=false;
-      didFindServer=true;
-      liveUserLabTime=0.5*30*1000;
-      liveMuseumUserLabTime=10*60*1000;
-    }
-  }
-});
+var g_DbName         = deployment[deployment.mode].db;
+var g_WebserverPort  = deployment[deployment.mode].webserver.port;
+var g_WebserverIdent = deployment[deployment.mode].webserver.ident;
+var g_WebserverName  = deployment[deployment.mode].webserver.name;
+var g_ControllerPort = deployment[deployment.mode].controller.port;
+var g_liveLabTime    = deployment[deployment.mode].liveLabTime;
+var g_liveMuseumTime = deployment[deployment.mode].liveMuseumLabTime;
+var g_publicIP       = deployment[deployment.mode].publicIP;
+
 var exports=module.exports={
   adminFlags:{
-    isDevTesting:isDevTesting,
-    isDev:isDev,
-    isProduction:isProduction,
     getMongoUri:function() {
-      var dbName='test';
-      if(this.isDevTesting) dbName='test';
-      else if(this.isDev) dbName='dev';
-      else if(this.isProduction) dbName='master';
-      return 'mongodb://localhost:27017/'+dbName;
+      return 'mongodb://localhost:27017/'+g_DbName;
     },
-    getServerPort:function() {
-      var port='5000';
-      if(this.isDevTesting) port='5000';
-      else if(this.isDev) port='4000';
-      else if(this.isProduction) port='3000';
-      return port;
+    getWebServerPort:function() {
+        return g_WebserverPort;
     },
     getControllerPort:function() {
-      var port='5200';
-      if(this.isDevTesting) port='6200';
-      else if(this.isDev) port='5200';
-      else if(this.isProduction) port='3200';
-      return port;
+        return g_ControllerPort;
     },
-    getServerAddr:function() {
-      return 'http://'+'localhost'+':'+this.getServerPort();
+    getWebServerAddr:function() {
+      return 'http://'+'localhost'+':'+this.getWebServerPort();
     },
+    getWebServerIdentifier:function() {
+        return g_WebserverIdent;
+    },
+    getWebServerName: function() {
+        return g_WebserverName;
+    }
   },
-  getServerAddr:function() {
-    return 'http://'+routerIP+':'+this.adminFlags.getServerPort();
-  },
+
   socketStrs:{
     bpu_ping:'/bpu/#ping',
     bpu_getStatus:'/bpu/#getStatus',
@@ -95,8 +68,8 @@ var exports=module.exports={
   minTextFileTime:4*1000,
   maxTextTotalSubmits:4,
   maxTextTotalSumbitTime:60*20*1000,
-  liveMuseumUserLabTime:liveMuseumUserLabTime,
-  liveUserLabTime:liveUserLabTime,
+  liveMuseumUserLabTime:g_liveMuseumTime,
+  liveUserLabTime:g_liveLabTime,
 
   mainServerData:'/myData/mServer/',
 
@@ -134,7 +107,7 @@ var exports=module.exports={
       serverPort:3100,
     },
     publicAddr:{
-      ip:routerIP,
+      ip:g_publicIP,
       ip2:'171.65.102.112',
       serverPort:80,
     },
@@ -158,7 +131,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20001,
         webcamPort:20000,
         allowedPorts:[20000, 20001, 20002, 20003, 20004],
@@ -183,7 +156,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20006,
         webcamPort:20005,
         allowedPorts:[20005, 20006, 20007, 20008, 20009],
@@ -209,7 +182,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20011,
         webcamPort:20010,
         allowedPorts:[20010, 20011, 20012, 20013, 20014],
@@ -234,7 +207,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20016,
         webcamPort:20015,
         allowedPorts:[20015, 20016, 20017, 20018, 20019],
@@ -259,7 +232,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20076,
         webcamPort:20075,
         allowedPorts:[20075, 20076, 20077, 20078, 20079],
@@ -284,7 +257,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20081,
         webcamPort:20080,
         allowedPorts:[20080, 20081, 20082, 20083, 20084],
@@ -309,7 +282,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20091,
         webcamPort:20090,
         allowedPorts:[20090, 20091, 20092, 20093, 20094],
@@ -334,7 +307,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20096,
         webcamPort:20095,
         allowedPorts:[20095, 20096, 20097, 20098, 20099],
@@ -359,7 +332,7 @@ var exports=module.exports={
         webcamPort:8080,
       },
       publicAddr:{
-        ip:routerIP,
+        ip:g_publicIP,
         serverPort:20101,
         webcamPort:20100,
         allowedPorts:[20100, 20101, 20102, 20103, 20104],

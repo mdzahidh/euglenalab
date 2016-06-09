@@ -4,8 +4,8 @@ var mongoose=require('mongoose');
 
 var mainConfig=require('../../mainConfig.js');
 var myMongoUri=mainConfig.adminFlags.getMongoUri();
-var myServerPort=mainConfig.adminFlags.getServerPort();
-var myServerAddr=mainConfig.adminFlags.getServerAddr();
+var myServerPort=mainConfig.adminFlags.getWebServerPort();
+var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
 myMongoUri='mongodb://localhost:27017/'+'production';
 var app={};
 app.db=null;

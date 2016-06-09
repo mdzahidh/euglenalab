@@ -82,8 +82,8 @@ var servers={
     var configPath=servers[serverName].path+'/shared/mainConfig.js';
     delete require.cache[require.resolve(configPath)];
     servers[serverName].mainConfig=require(configPath);
-    servers[serverName].config.port=servers[serverName].mainConfig.adminFlags.getServerPort();
-    servers[serverName].config.addr=servers[serverName].mainConfig.adminFlags.getServerAddr();
+    servers[serverName].config.port=servers[serverName].mainConfig.adminFlags.getWebServerPort();
+    servers[serverName].config.addr=servers[serverName].mainConfig.adminFlags.getWebServerAddr();
     servers[serverName].config.mongoUri=servers[serverName].mainConfig.adminFlags.getMongoUri();
     servers[serverName].mainConfig.bpus.forEach(function(bpu) {
       bpu.isConnected='?????';

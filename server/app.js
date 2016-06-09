@@ -126,8 +126,8 @@ app.server.listen(app.config.port, function() {
     app.bpuAuthObject=null;
     var connectToBpuController=function(callback) {
       var serverInfo={
-        Identifier:'b3cagcde2684ebd2cba325555ec2703b',
-        name:'InternalWeb1',
+        Identifier:app.config.myWebServerIdentifier,
+        name:app.config.myWebServerName,
         socketClientServerIP:'localhost',
         socketClientServerPort:app.config.myControllerPort,
       };

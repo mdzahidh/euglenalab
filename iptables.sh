@@ -34,6 +34,7 @@ sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 20100 -j DNAT --to 192.168.1
 
 
 # So that Public IP addresses works internally too
+sudo iptables -t nat -I OUTPUT -p tcp -d $PUBLIC_IP -j DNAT --to 192.168.1.100
 sudo iptables -t nat -I OUTPUT -p tcp --dport 80 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000
 # sudo iptables -t nat -I OUTPUT -p tcp --dport 2000 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:2000
 # sudo iptables -t nat -I OUTPUT -p tcp --dport 3000 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000

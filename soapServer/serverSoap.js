@@ -11,8 +11,8 @@ var PassKey='ZTUzYzU3OGE5NmM2MjZmNDIzNTVhMjlm';
 
 var mainConfig=require('../shared/mainConfig.js');
 var myMongoUri=mainConfig.adminFlags.getMongoUri();
-var myServerPort=mainConfig.adminFlags.getServerPort();
-var myServerAddr=mainConfig.adminFlags.getServerAddr();
+var myServerPort=mainConfig.adminFlags.getWebServerPort();
+var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
 var app={
   Identifier:'C56A80D928264A0A900B30D610EDCB95',
   PassKey:'ZTUzYzU3OGE5NmM2MjZmNDIzNTVhMjlm',

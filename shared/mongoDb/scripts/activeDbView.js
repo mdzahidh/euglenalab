@@ -3,8 +3,8 @@ var mongoose=require('mongoose');
 
 var mainConfig=require('../../mainConfig.js');
 var myMongoUri=mainConfig.adminFlags.getMongoUri();
-var myServerPort=mainConfig.adminFlags.getServerPort();
-var myServerAddr=mainConfig.adminFlags.getServerAddr();
+var myServerPort=mainConfig.adminFlags.getWebServerPort();
+var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
 
 var app={};
 app.db=null;

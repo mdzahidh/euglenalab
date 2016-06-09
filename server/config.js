@@ -13,15 +13,19 @@ var zeroLeds={
 
 var mainConfig=require('../shared/mainConfig.js');
 var myMongoUri=mainConfig.adminFlags.getMongoUri();
-var myServerPort=mainConfig.adminFlags.getServerPort();
-var myServerAddr=mainConfig.adminFlags.getServerAddr();
+var myServerPort=mainConfig.adminFlags.getWebServerPort();
+var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
 var myControllerPort = mainConfig.adminFlags.getControllerPort();
+var myWebServerName = mainConfig.adminFlags.getWebServerName();
+var myWebServerIdentifier = mainConfig.adminFlags.getWebServerIdentifier();
 
 exports.mainConfig=mainConfig;
 exports.port = process.env.PORT || myServerPort;
 exports.myServerPort = myServerPort;
 exports.myServerAddr = myServerAddr;
 exports.myControllerPort = myControllerPort;
+exports.myWebServerIdentifier = myWebServerIdentifier;
+exports.myWebServerName = myWebServerName;
 
 exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || myMongoUri
