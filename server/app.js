@@ -303,16 +303,23 @@ var _compileClientUpdateFromController=function(bpuDocs, listExperiment, running
   //Create bpu updates and sort active bpus experiments into session id
   var bpusUpdate=[];
   bpuDocs.forEach(function(bpuDoc) {
+
+    var liveBpuExperimentPart = null;
+
+    if (bpuDoc.bpuStatus !== app.mainConfig.bpuStatusTypes.offline ){
+      liveBpuExperimentPart = {
+        username:bpuDoc.liveBpuExperiment.username,
+        bc_timeLeft:bpuDoc.liveBpuExperiment.bc_timeLeft,
+        group_experimentType:bpuDoc.liveBpuExperiment.group_experimentType,
+      };
+    }
+
     var bpuObj={
       name:bpuDoc.name, index:bpuDoc.index,
       bpuStatus:bpuDoc.bpuStatus,
       bpu_processingTime:bpuDoc.bpu_processingTime,
 
-      liveBpuExperiment:{
-        username:bpuDoc.liveBpuExperiment.username,
-        bc_timeLeft:bpuDoc.liveBpuExperiment.bc_timeLeft,
-        group_experimentType:bpuDoc.liveBpuExperiment.group_experimentType,
-      },
+      liveBpuExperiment: liveBpuExperimentPart,
     };
     //Add to Session Update
     if(bpuObj.liveBpuExperiment) {

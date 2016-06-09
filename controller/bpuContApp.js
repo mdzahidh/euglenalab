@@ -491,12 +491,14 @@ var loop=function() {
             didCallback=true;
             bpuObj.socketTimeouts++;
             bpuObj.checkMsgs.push({isErr:true, time:new Date().getTime(), msg:'fn_connectBpu '+err});
+            bpuObj.doc.bpuStatus = app.mainConfig.bpuStatusTypes.offline;
             app.runData.addExpToBpuErrors.push({time:new Date(), err:bpuObj.doc.name+' fn_connectBpu '+err});
             return checkBpuCallback(null);
 
           } else if(!bpuObj.socket.connected) {
             didCallback=true;
             bpuObj.socketTimeouts++;
+            bpuObj.doc.bpuStatus = app.mainConfig.bpuStatusTypes.offline;
             bpuObj.checkMsgs.push({isErr:true, time:new Date().getTime(), msg:'!bpuObj.socket.connected'});
             app.runData.addExpToBpuErrors.push({time:new Date(), err:bpuObj.doc.name+' fn_connectBpu '+'!bpuObj.socket.connected'});
             return checkBpuCallback(null);

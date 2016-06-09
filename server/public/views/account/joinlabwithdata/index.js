@@ -341,17 +341,31 @@
       //Update BpuView with updateObj.bpuPackage
       if(updateObj.bpusPackage && updateObj.bpusPackage.forEach && updateObj.bpusPackage.length>0) {
         updateObj.bpusPackage.forEach(function(bpuPack) {
-          if(bpuPack.liveBpuExperiment) {
+          if(bpuPack.bpuStatus === 'offline'){
             //Title
-            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name+', User:'+bpuPack.liveBpuExperiment.username);
+            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name + ' (N/A)');
             //User
-            var secondsLeft=Math.round(bpuPack.liveBpuExperiment.bc_timeLeft/1000);
-            app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:'+secondsLeft+' seconds');
+            app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left: N/A');
             //Status
             app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:'+bpuPack.bpuStatus);
+          }
+          else if(bpuPack.liveBpuExperiment) {
+            //Title
+            var userPart = '(Free)'
+            if (bpuPack.liveBpuExperiment.username !== null ){
+              userPart = 'User: ' + bpuPack.liveBpuExperiment.username;
+            }else if(bpuPack.bpuStatus !== 'resetingDone'){
+              userPart = 'User: Anonymous';
+            }
+            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name + ' ' + userPart );
+            //User
+            var secondsLeft = Math.round(bpuPack.liveBpuExperiment.bc_timeLeft / 1000);
+            app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:' + secondsLeft + ' seconds');
+            //Status
+            app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
           } else {
             //Title
-            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name+', User:'+'None');
+            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name+': Free');
             //User
             app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:'+0+' seconds');
             //Status

@@ -99,6 +99,7 @@ var exports=module.exports={
     reseting:'reseting',
     resetingDone:'resetingDone',
     resetingFailed:'resetingFailed',
+    offline:'offline',
   },
   mServer:{
     name:'open_main_server',
