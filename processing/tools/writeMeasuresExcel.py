@@ -6,7 +6,7 @@ import numpy as np
 
 path = sys.argv[1]
 
-measures = ['x','y','vx','vy','s','a','width','height']
+measures = ['x','y','vx','vy','s','a','w','h']
 
 if path[-1] != '/':
     path+= '/'
@@ -18,7 +18,7 @@ for i in xrange( euglena.getNumTracks() ):
     if len(euglena.getTrackAt(i)['samples']) > 10:
         validTracks.append( euglena.getTrackAt(i))
 
-validTracks = sorted(validTracks,cmp=lambda a,b: b['numSamples']  -  a['numSamples'])
+validTracks = sorted(validTracks,cmp=lambda a,b: a['startFrame']  -  b['startFrame'])
 
 print "%d/%d"%(len(validTracks),euglena.getNumTracks())
 dest = path + 'VelocityAndOrientations.xlsx'
@@ -42,8 +42,8 @@ units = {
     'right' : '%',
     'bottom' : '%',
     'left' : '%',
-    'height': 'um',
-    'width' : 'um'
+    'h': 'um',
+    'w' : 'um'
 }
 def writeAllOnSameSheet(workbook):
     worksheet = workbook.add_worksheet()
@@ -96,6 +96,82 @@ def writeAllOnSameSheet(workbook):
             row += 1
 
         row += 1
+
+def writeFlatSheets(workbook,validTracks):
+
+    worksheets = {}
+    for m in measures:
+        worksheets[m] = workbook.add_worksheet(m);
+
+    frameData = {}
+    trackData = []
+    allTracks = set(range(len(validTracks)))
+    deltaMeasures = ('vx','vy','s')
+
+    for i, track in enumerate(validTracks):
+        x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
+        frames = np.array(frames,dtype=np.int)
+        dt = (frames[1:] - frames[:-1]) * T
+        vx = (x[1:] - x[:-1]) / dt
+        vy = (y[1:] - y[:-1]) / dt
+        s = np.sqrt(vx * vx + vy * vy)
+
+        for j,f in enumerate(frames):
+            if f not in frameData:
+                frameData[f] = [];
+            frameData[f].append( (i,j) )
+
+        trackData.append( {'x': x, 'y':y, 'vx':vx, 'vy':vy, 's':s, 'a':a, 'w':w, 'h':h, } )
+
+    allFrames = sorted(frameData.keys(), lambda x,y: x - y )
+
+    for m in measures:
+        worksheets[m].write(0,0,'Variable',header_format)
+        worksheets[m].write(0, 1, m)
+
+        worksheets[m].write(1, 0, 'Unit',header_format)
+        worksheets[m].write(1, 1, units[m])
+
+        worksheets[m].write(2, 0, 'frame (#)',header_format)
+        worksheets[m].write(2, 1, 'time (s)',header_format)
+        worksheets[m].write(2, 2, 'top (%)',header_format)
+        worksheets[m].write(2, 3, 'right (%)',header_format)
+        worksheets[m].write(2, 4, 'bottom (%)',header_format)
+        worksheets[m].write(2, 5, 'left (%)',header_format)
+
+        for t in allTracks:
+            worksheets[m].write(2, t + 6, validTracks[t]['trackID'],header_format)
+
+        for r, f in enumerate(allFrames):
+            row =  r + 3
+            trackSampleList = frameData[f]
+            leds = euglena.getLedStateFromFrame(f);
+
+            # nonEmptyTracks = set( t[0] for t in trackSampleList )
+
+            worksheets[m].write(row, 0, f)
+            worksheets[m].write(row, 1, f * T)
+            for c,l in enumerate(leds):
+                worksheets[m].write(row, 2+c, l)
+
+            for trackSample in trackSampleList:
+                trackId,sampleId = trackSample
+
+                if m in deltaMeasures:
+                    if sampleId > 0:
+                        value = trackData[trackId][m][sampleId-1]
+                    else:
+                        value = ''
+                else:
+                    value = trackData[trackId][m][sampleId]
+
+                worksheets[m].write( row, trackId + 6, value )
+
+#            emptyTracks = allTracks - nonEmptyTracks
+
+            # for t in emptyTracks:
+            #     worksheets[m].write(row, t + 6, 'NA')
+
 
 def writeOnDifferentWorksheets(workbook):
     worksheets = {}
@@ -151,7 +227,8 @@ def writeOnDifferentWorksheets(workbook):
 
 
 # writeAllOnSameSheet(workbook)
-writeOnDifferentWorksheets(workbook)
+#writeOnDifferentWorksheets(workbook)
+writeFlatSheets(workbook, validTracks)
 workbook.close()
 
 
