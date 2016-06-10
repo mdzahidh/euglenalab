@@ -25,9 +25,9 @@ dest = path + 'VelocityAndOrientations.xlsx'
 workbook = xlsxwriter.Workbook(dest)
 
 T = 1.0 / euglena.getFPS()
+UMPP = euglena.getUMPP()
 
 hasLeds = True
-
 
 merge_format = workbook.add_format({'align': 'left','fg_color':'yellow','bold':1})
 header_format = workbook.add_format({'bold':1})
@@ -51,6 +51,12 @@ def writeAllOnSameSheet(workbook):
     row = 0
     for i, track in enumerate(validTracks):
         x, y, w, h, a, f = np.array(euglena.extractTrackData(track))
+
+        x = x * UMPP
+        y = y * UMPP
+        w = w * UMPP
+        h = h * UMPP
+
         dt = f[1:] - f[:-1] * T
 
         if hasLeds:
@@ -110,6 +116,12 @@ def writeFlatSheets(workbook,validTracks):
 
     for i, track in enumerate(validTracks):
         x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
+
+        x = x * UMPP
+        y = y * UMPP
+        w = w * UMPP
+        h = h * UMPP
+
         frames = np.array(frames,dtype=np.int)
         dt = (frames[1:] - frames[:-1]) * T
         vx = (x[1:] - x[:-1]) / dt
@@ -182,6 +194,11 @@ def writeOnDifferentWorksheets(workbook):
     data = {}
     for i, track in enumerate(validTracks):
         x, y, w, h, a, f = np.array(euglena.extractTrackData(track))
+        x = x * UMPP
+        y = y * UMPP
+        w = w * UMPP
+        h = h * UMPP
+
         dt = f[1:] - f[:-1] * T
 
         if hasLeds:
