@@ -228,8 +228,8 @@ module.exports = function(grunt) {
   var buildTasks = ['copy:vendor','less'];
 
   if(compress) {
-    buildTasks.push('uglify');
-    defaultTasks.push('newer:uglify');
+    defaultTasks.splice(0,0,'newer:uglify');
+    buildTasks.splice(0,0,'uglify');
     console.log('Activating Production');
   }
   else{
