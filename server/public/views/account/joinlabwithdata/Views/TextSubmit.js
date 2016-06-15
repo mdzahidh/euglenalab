@@ -206,8 +206,8 @@ var _tryJson=function(data, cb_fn) {
           } 
           if(errDataCheck===null) {
             fileData.eventsToRun.sort(function(a, b) {return a.time-b.time;});
-            fileData.metaData.runTime=fileData.eventsToRun[fileData.eventsToRun.length-1].time;
-            if(fileData.eventsToRun[fileData.eventsToRun.length-1].time===0) {
+            fileData.metaData.runTime=fileData.eventsToRun[fileData.eventsToRun.length-1].time - fileData.eventsToRun[0].time;
+            if((fileData.metaData.runTime <= 0) || (fileData.eventsToRun[fileData.eventsToRun.length-1].time===0)) {
               tryError="try JSON LightData Check Err:"+"Zero time length";
             } else {
               if(fileData.eventsToRun.length===1) {

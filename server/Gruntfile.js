@@ -2,7 +2,11 @@ var path = require('path');
 var nodePath=process.env.NODE_PATH;
 var nodePath='node_modules'
 module.exports = function(grunt) {
-  grunt.initConfig({
+  
+  var env = grunt.option('env') || process.env.GRUNT_ENV || 'development';
+  var compress = (env == 'production');
+  
+  grunt.initConfig({      
     pkg: grunt.file.readJSON('./package.json'),
     copy: {
       vendor: {
@@ -167,7 +171,7 @@ module.exports = function(grunt) {
     },
     less: {
       options: {
-        compress: true
+        compress: compress
       },
       layouts: {
         files: {
@@ -220,7 +224,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-newer');
 
-  grunt.registerTask('default', ['copy:vendor', 'newer:uglify', 'newer:less', 'concurrent']);
-  grunt.registerTask('build', ['copy:vendor', 'uglify', 'less']);
+  var defaultTasks = ['copy:vendor', 'newer:less', 'concurrent'];
+  var buildTasks = ['copy:vendor','less'];
+
+  if(compress) {
+    buildTasks.push('uglify');
+    defaultTasks.push('newer:uglify');
+    console.log('Activating Production');
+  }
+  else{
+    console.log('Activating Development');
+  }
+
+  grunt.registerTask('default',defaultTasks);
+  grunt.registerTask('build', buildTasks);
   grunt.registerTask('lint', ['jshint']);
 };
