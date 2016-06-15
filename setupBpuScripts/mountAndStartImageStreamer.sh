@@ -96,18 +96,19 @@ then
   F_isMounted=0
 else
   AddToOutArr $secCnt". Is remote mounted? No"
+  AddToErrArr "$exitStatus"
 
-  #Do Mount
-  incSectionCounter
-  exitStatus=$(createLocalMountAndMount)
-  if [[ $exitStatus != '0' ]];
-  then
-    AddToOutArr $secCnt". Create Local And Mount? No"
-    AddToErrArr "$exitStatus"
-  else
-    AddToOutArr $secCnt". Create Local And Mount? Yes"
-    F_isMounted=0
-  fi
+#  #Do Mount
+#  incSectionCounter
+#  exitStatus=$(createLocalMountAndMount)
+#  if [[ $exitStatus != '0' ]];
+#  then
+#    AddToOutArr $secCnt". Create Local And Mount? No"
+#    AddToErrArr "$exitStatus"
+#  else
+#    AddToOutArr $secCnt". Create Local And Mount? Yes"
+#    F_isMounted=0
+#  fi
 fi
 
 
