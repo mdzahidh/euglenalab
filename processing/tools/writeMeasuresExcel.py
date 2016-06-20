@@ -21,30 +21,30 @@ for i in xrange( euglena.getNumTracks() ):
 validTracks = sorted(validTracks,cmp=lambda a,b: a['startFrame']  -  b['startFrame'])
 
 print "%d/%d"%(len(validTracks),euglena.getNumTracks())
-dest = path + 'VelocityAndOrientations.xlsx'
-workbook = xlsxwriter.Workbook(dest)
+
+
 
 T = 1.0 / euglena.getFPS()
 UMPP = euglena.getUMPP()
 
 hasLeds = True
 
-merge_format = workbook.add_format({'align': 'left','fg_color':'yellow','bold':1})
-header_format = workbook.add_format({'bold':1})
 units = {
     'x' : 'um',
     'y' : 'um',
-    'vx' : 'um/s',
-    'vy' : 'um/s',
-    's' : 'um/s',
-    'a' : 'deg',
+    'vx' : 'um/sec',
+    'vy' : 'um/sec',
+    's' : 'um/sec',
+    'a' : 'degrees',
     'top' : '%',
     'right' : '%',
     'bottom' : '%',
     'left' : '%',
     'h': 'um',
-    'w' : 'um'
+    'w' : 'um',
+    't' : 'sec'
 }
+
 def writeAllOnSameSheet(workbook):
     worksheet = workbook.add_worksheet()
     data = {}
@@ -103,7 +103,76 @@ def writeAllOnSameSheet(workbook):
 
         row += 1
 
-def writeFlatSheets(workbook,validTracks):
+def writeNewFormat(worbook,validTracks):
+    worksheets = {}
+    for m in measures:
+        worksheets[m] = workbook.add_worksheet(m);
+
+
+    for m in measures:
+        worksheets[m].write(0,0,'frame (#)',header_format)
+        worksheets[m].write(0,1, 'time (%s)'%(units['t']),header_format)
+        worksheets[m].write(0, 2, 'top (%s)' % (units['top']),header_format)
+        worksheets[m].write(0, 3, 'right (%s)' % (units['right']),header_format)
+        worksheets[m].write(0, 4, 'bottom (%s)' % (units['bottom']),header_format)
+        worksheets[m].write(0, 5, 'left (%s)' % (units['left']),header_format)
+
+    row = 1;
+    deltaMeasures = ('vx', 'vy', 's')
+    data = {}
+    frameLeds = {}
+
+    for i, track in enumerate(validTracks):
+        trackId = track['trackID']
+        x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
+
+        data['x'] = x = x * UMPP
+        data['y'] = y = y * UMPP
+        data['w'] = w = w * UMPP
+        data['h'] = h = h * UMPP
+        data['a'] = a
+
+        frames = np.array(frames, dtype=np.int)
+        dt = (frames[1:] - frames[:-1]) * T
+        vx = (x[1:] - x[:-1]) / dt
+        vy = (y[1:] - y[:-1]) / dt
+        s = np.sqrt(vx * vx + vy * vy)
+
+        data['vx'] = vx
+        data['vy'] = vy
+        data['s'] = s
+
+        for n, f in enumerate(frames):
+
+            if f not in frameLeds:
+                frameLeds[f] = leds = euglena.getLedStateFromFrame(f)
+            else:
+                leds = frameLeds[f]
+
+            for m in measures:
+                sheet = worksheets[m]
+
+                sheet.write(row, 0, f)
+                sheet.write(row, 1, f * T)
+                for c,l in enumerate(leds):
+                    sheet.write(row,2+c,l)
+                sheet.write(row, 6, 'X%d'%(trackId))
+
+                if m in deltaMeasures:
+                    if n > 0:
+                        value = data[m][n - 1]
+                    else:
+                        value = ''
+                else:
+                    value = data[m][n]
+
+                sheet.write(row,7,value)
+
+            row += 1
+
+def writeTracks(workbook,validTracks,measures):
+
+    header_format = workbook.add_format({'bold': 1})
 
     worksheets = {}
     for m in measures:
@@ -113,6 +182,8 @@ def writeFlatSheets(workbook,validTracks):
     trackData = []
     allTracks = set(range(len(validTracks)))
     deltaMeasures = ('vx','vy','s')
+    allFrames = range(euglena.getNumFrames())
+    frameData = [[] for i in range(euglena.getNumFrames())]
 
     for i, track in enumerate(validTracks):
         x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
@@ -129,33 +200,32 @@ def writeFlatSheets(workbook,validTracks):
         s = np.sqrt(vx * vx + vy * vy)
 
         for j,f in enumerate(frames):
-            if f not in frameData:
-                frameData[f] = [];
-            frameData[f].append( (i,j) )
+            frameData[f-1].append( (i,j) )
 
         trackData.append( {'x': x, 'y':y, 'vx':vx, 'vy':vy, 's':s, 'a':a, 'w':w, 'h':h, } )
 
-    allFrames = sorted(frameData.keys(), lambda x,y: x - y )
+    # allFrames = sorted(frameData.keys(), lambda x,y: x - y )
+
 
     for m in measures:
-        worksheets[m].write(0,0,'Variable',header_format)
-        worksheets[m].write(0, 1, m)
+        # worksheets[m].write(0,0,'Variable',header_format)
+        # worksheets[m].write(0, 1, m)
+        #
+        # worksheets[m].write(1, 0, 'Unit',header_format)
+        # worksheets[m].write(1, 1, units[m])
 
-        worksheets[m].write(1, 0, 'Unit',header_format)
-        worksheets[m].write(1, 1, units[m])
-
-        worksheets[m].write(2, 0, 'frame (#)',header_format)
-        worksheets[m].write(2, 1, 'time (s)',header_format)
-        worksheets[m].write(2, 2, 'top (%)',header_format)
-        worksheets[m].write(2, 3, 'right (%)',header_format)
-        worksheets[m].write(2, 4, 'bottom (%)',header_format)
-        worksheets[m].write(2, 5, 'left (%)',header_format)
+        worksheets[m].write(0, 0, 'frame (#)',header_format)
+        worksheets[m].write(0, 1, 'time (s)',header_format)
+        worksheets[m].write(0, 2, 'top (%)',header_format)
+        worksheets[m].write(0, 3, 'right (%)',header_format)
+        worksheets[m].write(0, 4, 'bottom (%)',header_format)
+        worksheets[m].write(0, 5, 'left (%)',header_format)
 
         for t in allTracks:
-            worksheets[m].write(2, t + 6, validTracks[t]['trackID'],header_format)
+            worksheets[m].write(0, t + 6, validTracks[t]['trackID'],header_format)
 
         for r, f in enumerate(allFrames):
-            row =  r + 3
+            row =  r + 1
             trackSampleList = frameData[f]
             leds = euglena.getLedStateFromFrame(f);
 
@@ -179,10 +249,211 @@ def writeFlatSheets(workbook,validTracks):
 
                 worksheets[m].write( row, trackId + 6, value )
 
-#            emptyTracks = allTracks - nonEmptyTracks
+def writeFlatSheetsAggregate(workbook,validTracks,measures):
 
-            # for t in emptyTracks:
-            #     worksheets[m].write(row, t + 6, 'NA')
+    header_format = workbook.add_format({'bold': 1})
+    worksheets = {}
+    for m in measures:
+        worksheets[m] = workbook.add_worksheet(m);
+
+    allFrames = range(euglena.getNumFrames())
+    frameData = [[] for i in range(euglena.getNumFrames())]
+
+    trackData = []
+    allTracks = set(range(len(validTracks)))
+    deltaMeasures = ('vx','vy','s')
+    trackLengths = {}
+    maxDisplaySamples = 0
+    displayOffset = 10
+
+    for i, track in enumerate(validTracks):
+        x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
+
+        x = x * UMPP
+        y = y * UMPP
+        w = w * UMPP
+        h = h * UMPP
+
+        if i not in trackLengths:
+            trackLengths[i] = 0;
+
+        trackLengths[i] = len(frames);
+
+        frames = np.array(frames,dtype=np.int)
+        dt = (frames[1:] - frames[:-1]) * T
+        vx = (x[1:] - x[:-1]) / dt
+        vy = (y[1:] - y[:-1]) / dt
+        s = np.sqrt(vx * vx + vy * vy)
+
+        for j,f in enumerate(frames):
+            frameData[f-1].append( (i,j) )
+
+        trackData.append( {'x': x, 'y':y, 'vx':vx, 'vy':vy, 's':s, 'a':a, 'w':w, 'h':h, } )
+
+
+
+    for m in measures:
+        # worksheets[m].write(0,0,'Variable',header_format)
+        # worksheets[m].write(0, 1, m)
+        #
+        # worksheets[m].write(1, 0, 'Unit',header_format)
+        # worksheets[m].write(1, 1, units[m])
+
+        worksheets[m].write(0, 0, 'frame (#)',header_format)
+        worksheets[m].write(0, 1, 'time (s)',header_format)
+        worksheets[m].write(0, 2, 'top (%)',header_format)
+        worksheets[m].write(0, 3, 'right (%)',header_format)
+        worksheets[m].write(0, 4, 'bottom (%)',header_format)
+        worksheets[m].write(0, 5, 'left (%)',header_format)
+        worksheets[m].write(0, 6, 'Mean (%s)'%(units[m]), header_format)
+        worksheets[m].write(0, 7, 'Std (%s)'%(units[m]), header_format)
+        worksheets[m].write(0, 8, 'N (#)', header_format)
+
+        for ii in range(maxDisplaySamples):
+            worksheets[m].write(0, ii + displayOffset, 'Sample %d (%s)'%(ii,units[m]), header_format)
+
+        for r, f in enumerate(allFrames):
+            row =  r + 1
+            trackSampleList = frameData[f]
+            leds = euglena.getLedStateFromFrame(f);
+
+            # nonEmptyTracks = set( t[0] for t in trackSampleList )
+
+            worksheets[m].write(row, 0, f)
+            worksheets[m].write(row, 1, f * T)
+            for c,l in enumerate(leds):
+                worksheets[m].write(row, 2+c, l)
+
+
+            values = []
+            lengthArray = []
+            for trackSample in trackSampleList:
+                trackId,sampleId = trackSample
+
+                if m in deltaMeasures:
+                    if sampleId > 0:
+                        value = trackData[trackId][m][sampleId-1]
+                        values.append( value )
+                        lengthArray.append((trackLengths[trackId], trackSample))
+                else:
+                    value = trackData[trackId][m][sampleId]
+                    values.append(value)
+                    lengthArray.append((trackLengths[trackId], trackSample))
+
+            N = len(values)
+            mean = np.mean(values) if N > 0 else ''
+            std = np.std(values) if N > 0 else ''
+
+            worksheets[m].write(row, 0 + 6, mean )
+            worksheets[m].write(row, 1 + 6, std)
+            worksheets[m].write(row, 2 + 6, N)
+
+            sortedTracks = sorted( lengthArray, key=lambda x: x[0], reverse=True)
+
+            for tt in range(min(len(sortedTracks), maxDisplaySamples)):
+                trackSample = sortedTracks[tt]
+                trackId     =     trackSample[1][0]
+                sampleId    = trackSample[1][1]
+
+                if m in deltaMeasures:
+                    if sampleId > 0:
+                        value = trackData[trackId][m][sampleId - 1]
+                    else:
+                        value = ''
+
+                else:
+                    value = trackData[trackId][m][sampleId]
+
+                worksheets[m].write(row, tt + displayOffset, value )
+
+
+def writeFlatSheetsAggregateBatchMesures(workbook,validTracks,measures):
+
+    header_format = workbook.add_format({'bold': 1})
+    worksheet = workbook.add_worksheet(','.join(measures));
+
+    allFrames = range(euglena.getNumFrames())
+    frameData = [[] for i in range(euglena.getNumFrames())]
+
+    trackData = []
+    allTracks = set(range(len(validTracks)))
+    deltaMeasures = ('vx','vy','s')
+    trackLengths = {}
+    maxDisplaySamples = 0
+    displayOffset = 10
+
+    for i, track in enumerate(validTracks):
+        x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
+
+        x = x * UMPP
+        y = y * UMPP
+        w = w * UMPP
+        h = h * UMPP
+
+        if i not in trackLengths:
+            trackLengths[i] = 0;
+
+        trackLengths[i] = len(frames);
+
+        frames = np.array(frames,dtype=np.int)
+        dt = (frames[1:] - frames[:-1]) * T
+        vx = (x[1:] - x[:-1]) / dt
+        vy = (y[1:] - y[:-1]) / dt
+        s = np.sqrt(vx * vx + vy * vy)
+
+        for j,f in enumerate(frames):
+            frameData[f-1].append( (i,j) )
+
+        trackData.append( {'x': x, 'y':y, 'vx':vx, 'vy':vy, 's':s, 'a':a, 'w':w, 'h':h, } )
+
+    worksheet.write(0, 0, 'frame (#)', header_format)
+    worksheet.write(0, 1, 'time (s)', header_format)
+    worksheet.write(0, 2, 'top (%)', header_format)
+    worksheet.write(0, 3, 'right (%)', header_format)
+    worksheet.write(0, 4, 'bottom (%)', header_format)
+    worksheet.write(0, 5, 'left (%)', header_format)
+
+    for n_m, m in enumerate(measures):
+        worksheet.write(0, 6+n_m, '%s Mean (%s)' % (m,units[m]), header_format)
+        worksheet.write(0, 6+len(measures) + n_m, '%s Std (%s)' % (m,units[m]), header_format)
+        worksheet.write(0, 6+len(measures)*2, 'N (#)', header_format)
+
+
+    for r, f in enumerate(allFrames):
+        row = r + 1
+        trackSampleList = frameData[f]
+        leds = euglena.getLedStateFromFrame(f);
+
+        for n_m, m in enumerate(measures):
+
+            worksheet.write(row, 0, f)
+            worksheet.write(row, 1, f * T)
+            for c,l in enumerate(leds):
+                worksheet.write(row, 2+c, l)
+
+            values = []
+            lengthArray = []
+            for trackSample in trackSampleList:
+                trackId,sampleId = trackSample
+
+                if m in deltaMeasures:
+                    if sampleId > 0:
+                        value = trackData[trackId][m][sampleId-1]
+                        values.append( value )
+                        lengthArray.append((trackLengths[trackId], trackSample))
+                else:
+                    value = trackData[trackId][m][sampleId]
+                    values.append(value)
+                    lengthArray.append((trackLengths[trackId], trackSample))
+
+            N = len(values)
+            mean = np.mean(values) if N > 0 else ''
+            std = np.std(values) if N > 0 else ''
+
+            worksheet.write(row, n_m + 6, mean )
+            worksheet.write(row, n_m + len(measures) + 6, std)
+
+        worksheet.write(row,  6 + len(measures)*2, N)
 
 
 def writeOnDifferentWorksheets(workbook):
@@ -205,8 +476,8 @@ def writeOnDifferentWorksheets(workbook):
             ledStates = [euglena.getLedStateFromFrame(fr) for fr in f]
             data['top'], data['right'], data['bottom'], data['left'] = zip(*ledStates)
 
-        data['width'] = w;
-        data['height'] = h;
+        data['w'] = w;
+        data['h'] = h;
         data['x'] = x;
         data['y'] = y;
         data['vx'] = vx = (x[1:] - x[:-1]) / dt
@@ -243,9 +514,35 @@ def writeOnDifferentWorksheets(workbook):
                     worksheets[item].write(j+2, startCol + 2, data[item][j]);
 
 
-# writeAllOnSameSheet(workbook)
-#writeOnDifferentWorksheets(workbook)
-writeFlatSheets(workbook, validTracks)
-workbook.close()
+def writeAllTracksAndAllMeasures():
+    dest = path + 'Track_Everything_Time_Series.xlsx'
+    workbook = xlsxwriter.Workbook(dest)
+    writeTracks(workbook, validTracks, measures)
+    workbook.close()
 
 
+def writeDataSet1():
+    dest = path + 'Track_Speed_Time_Series.xlsx'
+    workbook = xlsxwriter.Workbook(dest)
+    writeTracks(workbook, validTracks, ['s',])
+    workbook.close()
+
+def writeDataSet2():
+    dest = path + 'Speed_Aggregate_Mean_Std_Time_Series.xlsx'
+    workbook = xlsxwriter.Workbook(dest)
+    writeFlatSheetsAggregate(workbook, validTracks, ['s',])
+    workbook.close()
+
+def writeDataSet3():
+    dest = path + 'Velocity_Aggregate_Mean_Std_Time_Series.xlsx'
+    workbook = xlsxwriter.Workbook(dest)
+    writeFlatSheetsAggregateBatchMesures(workbook, validTracks, ['vx','vy'])
+    workbook.close()
+
+try:
+    writeAllTracksAndAllMeasures()
+    writeDataSet1()
+    writeDataSet2()
+    writeDataSet3()
+except:
+    print "Something bad happened while processing Excel files"
