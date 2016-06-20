@@ -8,3 +8,5 @@ if [[ $?  -ne 0 ]]; then
     exit -1
 fi
 rm -f $1/tracks_thresholded_10.avi
+
+python ./tools/writeMeasuresExcel.py $1

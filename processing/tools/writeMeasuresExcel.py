@@ -20,7 +20,7 @@ for i in xrange( euglena.getNumTracks() ):
 
 validTracks = sorted(validTracks,cmp=lambda a,b: a['startFrame']  -  b['startFrame'])
 
-print "%d/%d"%(len(validTracks),euglena.getNumTracks())
+#print "%d/%d"%(len(validTracks),euglena.getNumTracks())
 
 
 
