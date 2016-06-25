@@ -15,6 +15,11 @@ module.exports = function(grunt) {
             expand: true, cwd: nodePath+'/bootstrap/',
             src: ['js/**', 'less/**'], dest: 'public/vendor/bootstrap/'
           },
+          // For glyphicons
+          {
+            expand: true, cwd: nodePath+'/bootstrap/',
+            src: ['fonts/**'], dest: 'public/'
+          },
           {
             expand: true, cwd: nodePath+'/backbone/',
             src: ['backbone.js'], dest: 'public/vendor/backbone/'
