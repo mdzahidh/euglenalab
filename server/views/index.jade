@@ -1,7 +1,7 @@
 extends ../layouts/default
 
 block head
-  title Euglena BioLab 
+  title Realtime Online Euglena Lab
 
 block neck
   link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
@@ -11,10 +11,12 @@ block feet
 
 block body
   div.jumbotron
-    h1 Euglena BioLab
+    h1 Realtime Online Euglena Lab
     p.lead
-      | Interactive BioTech.
+      | Interactive Biology Online.
       div
+        a.btn.btn-primary.btn-lg(href='/login/') Login
+        |  or&nbsp;
         a.btn.btn-primary.btn-lg(href='/signup/') Create an Account
         |  or&nbsp;
         a.btn.btn-warning.btn-lg(href='/login/forgot/') Reset Your Password

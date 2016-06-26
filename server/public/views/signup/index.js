@@ -52,6 +52,7 @@
       },{
         success: function(model, response) {
           if (response.success) {
+            location.href = response.defaultReturnUrl;
             //location.href = '/account/';
           }
           else {

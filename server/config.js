@@ -31,7 +31,7 @@ exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || myMongoUri
 };
 exports.companyName = 'Riedel-Kruse Lab';
-exports.projectName = 'Euglena Interactive BioTech';
+exports.projectName = 'Interactive Online Biology';
 exports.systemEmail=_systemEmail;
 exports.cryptoKey = 'k3yb0ardc4t';
 exports.loginAttempts = {

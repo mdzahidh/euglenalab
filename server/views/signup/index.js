@@ -185,7 +185,8 @@ exports.signup = function(req, res){
             return workflow.emit('exception', err);
           }
 
-          workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
+          workflow.outcome.defaultReturnUrl = workflow.user.defaultReturnUrl();
+          //workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
           workflow.emit('response');
         });
       }
