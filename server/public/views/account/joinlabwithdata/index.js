@@ -396,11 +396,11 @@
 
         //Live Label
         var isLiveDisabled=false;
-        var liveMsg='No live experiments in queue or any BPU.  Click To Join.';
+        var liveMsg='No live experiments in queue or any microscope.  Click To Join.';
         //Bpu Live
         if(updateObj.bpuLiveExp!==null && updateObj.bpuLiveExp!==undefined) {
           var bpuLiveSecondsWaitTime=Math.round(updateObj.bpuLiveFinishTime/1000);
-          liveMsg='On BPU '+updateObj.bpuLiveExp.name+'.  ';
+          liveMsg='On microscope '+updateObj.bpuLiveExp.name+'.  ';
           if(bpuLiveSecondsWaitTime<0) {
             bpuLiveSecondsWaitTime=-1*bpuLiveSecondsWaitTime;
             liveMsg+='Processing for '+bpuLiveSecondsWaitTime+' seconds.';
@@ -412,7 +412,7 @@
         //Queue Live
         } else if(updateObj.liveQueueExp!==null && updateObj.liveQueueExp!==undefined) {
           var liveSecondsWaitTime=Math.round(updateObj.liveQueueExp.exp_lastResort.totalWaitTime/1000);
-          liveMsg='Waiting for bpu '+updateObj.liveQueueExp.exp_lastResort.bpuName+'.  ';
+          liveMsg='Waiting for microscope '+updateObj.liveQueueExp.exp_lastResort.bpuName+'.  ';
           liveMsg+='Wait time is '+liveSecondsWaitTime+' seconds.';
           isLiveDisabled=true;
         }
@@ -427,7 +427,7 @@
         //Bpu Text Total
         if(updateObj.bpuTextTotalExps>0) {
           textWaitTime=updateObj.bpuTextTotalRunTime;
-          textMsg+=updateObj.bpuTextTotalExps+' exps on BPUs.  ';
+          textMsg+=updateObj.bpuTextTotalExps+' exps on microscopes.  ';
         }
         //Queue Text
         if(updateObj.textTotalExps>0) {
@@ -496,7 +496,7 @@
           app.liveJoinView.setJoinLiveNextLabel('Connection Error:'+err+'.  Refresh Browser.');
         } else {
           app.userSocketClient.isInitialized=true;
-          app.mainView.setHeaderLabel('Connected. Wait for BPU Update.');
+          app.mainView.setHeaderLabel('Connected. Wait for microscope Update.');
         }
       });
     },
