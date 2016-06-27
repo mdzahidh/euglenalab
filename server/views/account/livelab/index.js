@@ -54,7 +54,8 @@ exports.init = function(req, res, next) {
   outcome.sideStreamUrl=null;
 
   var getLengthScale100um = function (zoom){
-    return (30.0 * zoom) / 4.0;
+    // in percentage with respect to 640
+    return Math.round((((30.0 * zoom) / 4.0) * 100.0) / 640.0);
   }
   var getBpuData=function(callback) {
     req.app.db.models.Bpu.findById(outcome.exp.liveBpu.id, {}, function(err, bpuDoc) {
@@ -103,7 +104,7 @@ exports.init = function(req, res, next) {
         data: {
           user:escape(JSON.stringify(outcome.user)),
           bpu:escape(JSON.stringify(outcome.bpu)),
-          lengthScale100um:escape(JSON.stringify(outcome.lengthScale100um)),
+          lengthScale100um:escape(JSON.stringify(outcome.lengthScale100um))+'%',
           bpuExp:escape(JSON.stringify(outcome.exp)),
           session: escape(JSON.stringify(outcome.sess)),
           divInfo:outcome.divInfo,

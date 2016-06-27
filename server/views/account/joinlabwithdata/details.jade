@@ -21,9 +21,13 @@ block body
     div.page-header
       //- h1
       //-   title Experiment ID / <%= _id %>
-      video(width='100%', controls)
-        source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/tracks_thresholded_10.ogg')
-        source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/tracks_thresholded_10.mp4')
+      div.video-container
+        video(width='100%', controls)
+          source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/tracks_thresholded_10.ogg')
+          source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/tracks_thresholded_10.mp4')
+        button.btn.btn-default.btn-lg(type='button', name='vid-play')
+          span.glyphicon.glyphicon-play
+
       form
         div.form-group
           label Write track IDs (e.g. 1 2 4-10 to mean track #1 and #2 and #4 to #10 inclusive)

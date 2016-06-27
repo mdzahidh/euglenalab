@@ -61,6 +61,13 @@ block neck
       float:left;
       z-index:1;
     }
+    #myVideo {
+      background-color:#d3d3d3;
+      width:100%;
+      float:left;
+      z-index:1;
+    }
+
     #myRightLight {
       background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha});
       height:#{data.divInfo.lightLong};
@@ -106,19 +113,19 @@ block neck
       //- background-color:rgba(0,0,0,0.0);
       position:relative;
       height:8%;
-      width:20%;
+      width:#{data.lengthScale100um};
       text-align:center;
       border-style:solid;
       border-width:0px;
-      top:88%;
-      left:75%;
+      top:90%;
+      left:80%;
       z-index:10;
     }
 
     #myScale {
       background-color:rgba(255,255,0,1);
       position:relative;
-      width:#{data.lengthScale100um}px;
+      width:100%;
       height:10px;
       text-align:center;
       border-style:solid;
@@ -160,14 +167,14 @@ block body
         div#myLightSpacer(name='myLightSpacer')
         //- div#myLeftLight
         //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
-        div#myLeftLight(name='myLeftLight') Hello
-        img#myImage(name='myImage', src='#{data.mainImageIP}')
-        div#myScalebar(name='myScalebar')
-          center
-            div#myScale(name='myScale')
-              center
-                span#myScaleText 100um
-        //-       label 100um
+        div#myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
+        div#myImage
+          img#myVideo(src='#{data.mainImageIP}')
+          div#myScalebar(name='myScalebar')
+            center
+              div#myScale(name='myScale')
+                center
+                  span#myScaleText 100um
         div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
         div#myLightSpacer(name='myLightSpacer')
         div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
