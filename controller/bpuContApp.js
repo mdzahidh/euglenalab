@@ -12,7 +12,7 @@ var app={
     //Logger //ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
     loggerName:_Name,
 
-    loggerLevel:'ERROR',
+    loggerLevel:'INFO',
     //Mongo/Mongoose DB
     mongoUri:require('../shared/mainConfig.js').adminFlags.getMongoUri(), // production, dev, stage
     socketClientServerIP:'localhost',
@@ -781,15 +781,23 @@ var loop=function() {
               app.runData.runningQueueTimesPerBpuName[expDoc.exp_lastResort.canidateBpus[0].bpuName]+=expDoc.exp_eventsRunTime;
             }
           }
+
           if(true) {
             app.logger.trace(cnt+':checkExpAndResort:(sess:'+expTag.session.sessionID+', id:'+expTag.id+'):'+expTag.group_experimentType+':(cans:'+expDoc.exp_lastResort.canidateBpus.length+')');
             expDoc.exp_lastResort.canidateBpus.forEach(function(canBpu) {
               app.logger.trace(canBpu.bpuName+' '+canBpu.finalScore+' '+canBpu.totalWaitTime);
             });
           }
+
+          if (expDoc.exp_lastResort.bpuName === null){
+            expDoc.exp_lastResort.rejectionCounter++;
+            expTag.exp_lastResort.rejectionReason='No candidate BPU found';
+          }
+
           app.keeperExpDocs.push(expDoc);
           checkExpCallback(null);
         }
+
       });//end for BpuExperiment.findById
     };
 
@@ -989,7 +997,12 @@ var loop=function() {
     while(app.keeperExpDocs.length>0) {
       var expDoc=app.keeperExpDocs.shift();
       var newTag=expDoc.getExperimentTag();
-      app.listExperimentDoc[newTag.exp_lastResort.bpuName].push(newTag);
+      if (newTag.exp_lastResort.bpuName in app.listExperimentDoc) {
+        app.listExperimentDoc[newTag.exp_lastResort.bpuName].push(newTag);
+      }
+      else{
+        app.logger.error('BPU Name in experiment: ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not preset in app.listExperiment');
+      }
     }
     //Save to database
     app.listExperimentDoc.save(function(err, savedDoc) {
