@@ -21,8 +21,8 @@ html
           ul.nav.navbar-nav
             li: a(href='/') Home
             li: a(href='/about/') About
-            li: a(href='/signup/') Sign Up
-            li: a(href='/contact/') Contact
+            //li: a(href='/signup/') Sign Up
+            //li: a(href='/contact/') Contact
           ul.nav.navbar-nav.navbar-right
             if user && user.username
               li: a(href='#{user.defaultReturnUrl}')
@@ -41,9 +41,9 @@ html
       div.container
         span.copyright.pull-right
           |&#169; #{copyrightYear} #{copyrightName}
-        ul.links
-          li: a(href='/') Home
-          li: a(href='/contact/') Contact
+        //ul.links
+        //  li: a(href='/') Home
+        //  li: a(href='/contact/') Contact
         div.clearfix
 
     div.ajax-spinner
