@@ -1,7 +1,7 @@
 extends ../../../layouts/account
 
 block head
-  title Live Joystick Lab 
+  title Live Joystick Lab
   //meta(http-equiv='refresh', content='30')
 
 
@@ -13,93 +13,132 @@ block neck
     #debugLabel2 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
     #debugLabel3 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
     #myMainRow {
-      background-color:#ffffff; 
+      background-color:#ffffff;
       margin-top:1%;
       height:#{data.divInfo.mainRowHeight};
-      width:#{data.divInfo.mainRowWidth}; 
+      width:#{data.divInfo.mainRowWidth};
       float:left;
     }
-    
+
     #myMainCol {
-      background-color:#ffffff; 
-      height:100%; 
+      background-color:#ffffff;
+      height:100%;
       height:#{data.divInfo.mainColHeight};
-      width:#{data.divInfo.mainColWidth}; 
+      width:#{data.divInfo.mainColWidth};
       float:left;
     }
     #myLightSpacer {
-      background-color:rgba(0,0,0,0.5); 
+      background-color:rgba(0,0,0,0.5);
       height:#{data.divInfo.lightShort};
       width:#{data.divInfo.lightShort};
-      float:left; 
+      float:left;
       text-align:center;
       border-style:solid;
       border-width:1px;
     }
     #myTopLight {
-      background-color:rgba(255,255,0,#{data.lightData.topLightAlpha}); 
+      background-color:rgba(255,255,0,#{data.lightData.topLightAlpha});
       height:#{data.divInfo.lightShort};
       width:#{data.divInfo.lightLong};
-      float:left; 
+      float:left;
       text-align:center;
       border-style:solid;
       border-width:1px;
     }
     #myLeftLight {
-      background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha}); 
+      background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha});
       height:#{data.divInfo.lightLong};
       width:#{data.divInfo.lightShort};
-      float:left; 
+      float:left;
       text-align:center;
       border-style:solid;
       border-width:1px;
     }
     #myImage {
-      background-color:#d3d3d3; 
+      background-color:#d3d3d3;
       height:#{data.divInfo.imageHeight};
-      width:#{data.divInfo.imageWidth}; 
+      width:#{data.divInfo.imageWidth};
       float:left;
+      z-index:1;
     }
     #myRightLight {
-      background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha}); 
+      background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha});
       height:#{data.divInfo.lightLong};
       width:#{data.divInfo.lightShort};
-      float:left; 
+      float:left;
       text-align:center;
       border-style:solid;
       border-width:1px;
+      z-index:1;
     }
     #myBottomLight {
-      background-color:rgba(255,255,0,#{data.lightData.bottomLightAlpha}); 
+      background-color:rgba(255,255,0,#{data.lightData.bottomLightAlpha});
       height:#{data.divInfo.lightShort};
       width:#{data.divInfo.lightLong};
-      float:left; 
+      float:left;
       text-align:center;
       border-style:solid;
       border-width:1px;
-    } 
-    #myAside {
-      background-color:#ffffff; 
-      height:#{data.divInfo.asideColHeight};
-      width:#{data.divInfo.asideColWidth}; 
-      float:left;
+      z-index:1;
     }
-    
+    #myAside {
+      background-color:#ffffff;
+      height:#{data.divInfo.asideColHeight};
+      width:#{data.divInfo.asideColWidth};
+      float:left;
+      z-index:1;
+    }
+
     #myImage2 {
-      background-color:#d3d3d3; 
+      background-color:#d3d3d3;
       height:#{data.divInfo.sideImageHeight};
-      width:#{data.divInfo.sideImageWidth}; 
+      width:#{data.divInfo.sideImageWidth};
       float:left;
     }
     #myJoystick {
-      background-color:#A0A0A0; 
+      background-color:#A0A0A0;
       height:#{data.divInfo.joystickHeight};
-      width:#{data.divInfo.joystickWidth}; 
+      width:#{data.divInfo.joystickWidth};
       float:left;
     }
-    .canvas-joystick-off {background-color:#A0A0A0;} 
+
+    #myScalebar {
+      //- background-color:rgba(0,0,0,0.0);
+      position:relative;
+      height:8%;
+      width:20%;
+      text-align:center;
+      border-style:solid;
+      border-width:0px;
+      top:88%;
+      left:75%;
+      z-index:10;
+    }
+
+    #myScale {
+      background-color:rgba(255,255,0,1);
+      position:relative;
+      width:#{data.lengthScale100um}px;
+      height:10px;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+      z-index:11;
+    }
+
+    #myScaleText {
+      position:absolute;
+      z-index:11;
+      top:50%;
+      left:20%;
+      font-size:18px;
+      font-weight:bold;
+      color:rgb(0,0,0);
+    }
+
+    .canvas-joystick-off {background-color:#A0A0A0;}
     .canvas-joystick-on {background-color:#66b2ff;}
-    #labTimeLeftLabel {font-size:36px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;} 
+    #labTimeLeftLabel {font-size:36px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
 
 block feet
   script(src='/views/account/livelab/index.min.js?#{cacheBreaker}')
@@ -116,31 +155,44 @@ block body
   if data.divInfo.hasAside
     div.row#myMainRow(name='myMainRow')
       div.col#myMainCol(name='myMainCol')
-        div#myLightSpacer(name='myLightSpacer') 
+        div#myLightSpacer(name='myLightSpacer')
         div#myTopLight(name='myTopLight') #{data.lightData.topValue}
-        div#myLightSpacer(name='myLightSpacer') 
-        div#myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
+        div#myLightSpacer(name='myLightSpacer')
+        //- div#myLeftLight
+        //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
+        div#myLeftLight(name='myLeftLight') Hello
         img#myImage(name='myImage', src='#{data.mainImageIP}')
+        div#myScalebar(name='myScalebar')
+          center
+            div#myScale(name='myScale')
+              center
+                span#myScaleText 100um
+        //-       label 100um
         div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
-        div#myLightSpacer(name='myLightSpacer') 
+        div#myLightSpacer(name='myLightSpacer')
         div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
-        div#myLightSpacer(name='myLightSpacer') 
+        div#myLightSpacer(name='myLightSpacer')
       div.col#myAside(name='myAside')
         div#myJoystick.canvas-joystick-off(name='myJoystick')
         img#myImage2(name='myImage2', src='#{data.sideImageIP}')
   else
     div.row#myMainRow(name='myMainRow')
       div.col#myMainCol(name='myMainCol')
-        div#myLightSpacer(name='myLightSpacer') 
+        div#myLightSpacer(name='myLightSpacer')
         div#myTopLight(name='myTopLight') #{data.lightData.topValue}
-        div#myLightSpacer(name='myLightSpacer') 
+        div#myLightSpacer(name='myLightSpacer')
         div#myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
         img#myImage(name='myImage', src='#{data.mainImageIP}')
+        div#myScalebar(name='myScalebar')
+          center
+            div#myScale(name='myScale')
+              center
+                span#myScaleText 100um
         div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
-        div#myLightSpacer(name='myLightSpacer') 
+        div#myLightSpacer(name='myLightSpacer')
         div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
-        div#myLightSpacer(name='myLightSpacer') 
-  
+        div#myLightSpacer(name='myLightSpacer')
+
   script(type='text/lab', id='data-user') !{data.user}
   script(type='text/lab', id='data-bpu') !{data.bpu}
   script(type='text/lab', id='data-bpuExp') !{data.bpuExp}

@@ -1,9 +1,9 @@
 var Canvas_Joystick=function(canvasDiv) {
-  var thisJoy=this; 
+  var thisJoy=this;
   //Class Variables
   thisJoy.snapBack=true;
   thisJoy.className='canvas-joystick';
- 
+
   //Touch Events
   thisJoy.canvasDiv=canvasDiv;
 
@@ -18,20 +18,21 @@ var Canvas_Joystick=function(canvasDiv) {
   thisJoy.canvas.style.top=canvasDiv.clientHeight*((1 - canvasPCT)*0.500) + 'px';
   thisJoy.canvas.style.position='relative';
   canvasDiv.appendChild(thisJoy.canvas);
- 
+
   //Set Context
   var context=thisJoy.canvas.getContext('2d');
   context.strokeStyle="#ff00ff";
   context.lineWidth=2;
- 
+
   //OriginalValues
   thisJoy.org={};
   thisJoy.org.textIntensity={x:5, y:44, size:'20'};
   thisJoy.org.textAngle={x:5, y:20, size:'20'};
-  
-  //Static Joystick Parameters 
-  thisJoy.RADS_TO_DEGREES=180/Math.PI;  
-  thisJoy.TWO_PI=2*Math.PI;  
+  thisJoy.titlePos = {x:0,y:0};
+
+  //Static Joystick Parameters
+  thisJoy.RADS_TO_DEGREES=180/Math.PI;
+  thisJoy.TWO_PI=2*Math.PI;
   thisJoy.segs=48;
   thisJoy.arcLength=(thisJoy.TWO_PI)/thisJoy.segs;
   thisJoy.textIntensity=JSON.parse(JSON.stringify(thisJoy.org.textIntensity));
@@ -57,7 +58,7 @@ var Canvas_Joystick=function(canvasDiv) {
   this.updateDraw=function() {
     //Clear Draw Context
     context.clearRect(0, 0, thisJoy.canvas.width, thisJoy.canvas.height);
-    
+
     //Resize Joystick Parameters
     //thisJoy.maxJoyRadius=thisJoy.canvas.width*0.300;
     //if(thisJoy.canvas.height<thisJoy.canvas.width) {thisJoy.maxJoyRadius=thisJoy.canvas.height*0.300;}
@@ -65,30 +66,31 @@ var Canvas_Joystick=function(canvasDiv) {
     //thisJoy.centerPoint={x:thisJoy.canvas.width*0.500, y:thisJoy.canvas.height*0.550};
     //thisJoy.textIntensity={x:10, y:44};
     //thisJoy.textAngle={x:0, y:20};
-   
+
     //Draw Sequence
-    
-    //Static 
+
+    //Static
     drawBoundingCircle();
     drawBoundingCircleHalf();
-   
+
     //Dynamic - Fillstyle(opacity) Depends on intensity of joystick
     drawIntensityCircle(thisJoy.inten_evt);
 
-    //Static    
+    //Static
     drawCenterMark();
-   
-    //Dynamic -  
+
+    //Dynamic -
     drawJoystickStick(thisJoy.x_evt, thisJoy.y_evt);
     drawJoystickHead(thisJoy.x_evt, thisJoy.y_evt);
-   
-    //Text  
-    drawIntensityText(thisJoy.inten_evt);    
-    drawAngleText(thisJoy.degs_evt);        
+
+    //Text
+    drawIntensityText(thisJoy.inten_evt);
+    drawAngleText(thisJoy.degs_evt);
+    drawJoystickTitle();
   };
 
   //Draw Functions
-  //Dynamic 
+  //Dynamic
   var drawIntensityCircle=function(alpha) {  //alpha: Depends on intensity of joystick
     context.beginPath();
     context.fillStyle = "rgba(255, 255, 0, "+alpha+")";
@@ -144,7 +146,7 @@ var Canvas_Joystick=function(canvasDiv) {
   //Text
   var drawIntensityText=function(alpha) {
     context.beginPath();
-    context.fillStyle="rgba(255, 255, 255, "+1.0+")"; 
+    context.fillStyle="rgba(255, 255, 255, "+1.0+")";
     context.font=thisJoy.textIntensity.size+'px Veranda';
     var txt=Math.round(alpha*100)/100 + '';
     if(txt.length===1) {txt+='.00';}
@@ -153,7 +155,7 @@ var Canvas_Joystick=function(canvasDiv) {
   };
   var drawAngleText=function(angle) {
     context.beginPath();
-    context.fillStyle="rgba(255, 255, 255, "+1.0+")"; 
+    context.fillStyle="rgba(255, 255, 255, "+1.0+")";
     context.font=thisJoy.textAngle.size+'px Veranda';
     var num=Number(angle);
     if(num<=0) {num=Math.abs(num);}
@@ -162,6 +164,15 @@ var Canvas_Joystick=function(canvasDiv) {
     if(txt.length===1) {txt='  '+txt;}
     else if(txt.length===2) {txt=' '+txt;}
     context.fillText('Angle: ' + txt + ' degs', thisJoy.textAngle.x, thisJoy.textAngle.y);
+  };
+
+  var drawJoystickTitle = function(){
+    context.beginPath();
+    context.fillStyle="rgba(255, 255, 255, "+1.0+")";
+    context.font=thisJoy.textAngle.size+'px Veranda';
+    var title = 'Joystick';
+    var m = context.measureText(title);
+    context.fillText(title, thisJoy.canvas.width - m.width - 10 , thisJoy.canvas.height - 15);
   };
 
   return this;
@@ -179,12 +190,12 @@ Canvas_Joystick.prototype.resize=function(width, height) {
   if(this.canvas.height<this.canvas.width) {this.maxJoyRadius=this.canvas.height*0.300;}
   this.joyHeadRadius=this.maxJoyRadius*0.200;
   this.centerPoint={x:this.canvas.width*0.500, y:this.canvas.height*0.550};
-  
+
   if(this.canvas.width<200) {
     this.textAngle.size='12';
     this.textAngle.x=0;
     this.textAngle.y=44;
-    
+
     this.textIntensity.size='12';
     this.textIntensity.x=0;
     this.textIntensity.y=20;
@@ -194,11 +205,14 @@ Canvas_Joystick.prototype.resize=function(width, height) {
     this.textIntensity.size=this.org.textIntensity.size;
     this.textIntensity.x=this.org.textIntensity.x;
     this.textIntensity.y=this.org.textIntensity.y;
-    
+
     this.textAngle.size=this.org.textAngle.size;
     this.textAngle.x=this.org.textAngle.x;
     this.textAngle.y=this.org.textAngle.y;
   }
+
+  this.titlePos.x = (3 * this.canvas.width) / 4;
+  this.titlePos.y = (this.canvas.height - 20);
 };
 Canvas_Joystick.prototype.toggleJoystick=function(toggle) {
   if(this.canvas.className!==this.className + '-' +toggle) {
@@ -209,23 +223,23 @@ Canvas_Joystick.prototype.update=function(text) {
   this.updateDraw(text);
 };
 Canvas_Joystick.prototype.getXyFromLightValues=function(lightValues, from) {
-  
+
   var x=this.centerPoint.x;
   if(lightValues.leftValue>0) {x-=this.maxJoyRadius*(lightValues.leftValue/100);
   } else if(lightValues.rightValue>0) {x+=this.maxJoyRadius*(lightValues.rightValue/100);}
-  
+
   var y=this.centerPoint.y;
   if(lightValues.topValue>0) {y-=this.maxJoyRadius*(lightValues.topValue/100);
   } else if(lightValues.bottomValue>0) {y+=this.maxJoyRadius*(lightValues.bottomValue/100);}
-  
+
   return {x:Math.round(x), y:Math.round(y)};
 };
 Canvas_Joystick.prototype.setLightValuesFromXY=function(ledsSetObj, from) {
-  
+
   //Convert Event Vector to Joystick Center
   this.dx_evt=ledsSetObj.metaData.layerX-this.centerPoint.x;
   this.dy_evt=ledsSetObj.metaData.layerY-this.centerPoint.y;
-  
+
   //Get parameters
   this.mag_evt=Math.sqrt((this.dx_evt*this.dx_evt)+(this.dy_evt*this.dy_evt));
   this.rads_evt=Math.atan2(this.dy_evt, this.dx_evt);
@@ -236,16 +250,16 @@ Canvas_Joystick.prototype.setLightValuesFromXY=function(ledsSetObj, from) {
     this.sin_evt=this.dy_evt/this.mag_evt;
     this.cos_evt=this.dx_evt/this.mag_evt;
   }
-  
-  //Check parameters outside joystick radius 
+
+  //Check parameters outside joystick radius
   //  scale down to max
   if(this.mag_evt>this.maxJoyRadius) {
     this.dx_evt=this.maxJoyRadius*this.cos_evt;
     this.dy_evt=this.maxJoyRadius*this.sin_evt;
     this.mag_evt=this.maxJoyRadius;
   }
- 
-  //Joystick head point 
+
+  //Joystick head point
   this.x_evt=this.centerPoint.x+this.dx_evt;
   this.y_evt=this.centerPoint.y+this.dy_evt;
 
@@ -253,7 +267,7 @@ Canvas_Joystick.prototype.setLightValuesFromXY=function(ledsSetObj, from) {
   this.degs_evt=(this.rads_evt*this.RADS_TO_DEGREES).toFixed(0);
   //Set intensity/alpha for draw
   this.inten_evt=(this.mag_evt/this.maxJoyRadius).toFixed(2);
-  
+
   //Parse light values, Scale to 100, and Set Light Values
   if(this.sin_evt<=0) {
     ledsSetObj.topValue=Math.round(Math.abs(this.sin_evt*this.inten_evt)*100);
@@ -270,12 +284,12 @@ Canvas_Joystick.prototype.setLightValuesFromXY=function(ledsSetObj, from) {
     ledsSetObj.rightValue=Math.round(Math.abs(this.cos_evt*this.inten_evt)*100);
   }
 
-  //Add info to ledsSetObj  
+  //Add info to ledsSetObj
   ledsSetObj.metaData.intensity=this.inten_evt;
   ledsSetObj.metaData.degs=this.degs_evt;
   ledsSetObj.metaData.rads=this.rads_evt;
   ledsSetObj.metaData.x=this.x_evt;
   ledsSetObj.metaData.y=this.y_evt;
-  
+
   return ledsSetObj;
 };

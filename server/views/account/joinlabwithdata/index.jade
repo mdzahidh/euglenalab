@@ -36,13 +36,13 @@ block body
 
   script(type='text/template', id='tmpl-joinlive')
     div.page-header
-      button.btn.btn-primary.btn-joinLiveNext#joinLiveNext(type='button', name='joinLiveNext', value=-1, style='width:100%; height:50px', disabled) Live Join: Click To Join
+      button.btn.btn-primary.btn-joinLiveNext#joinLiveNext(type='button', name='joinLiveNext', value=-1, style='width:100%; height:50px', disabled) Live Join Next Available Online Microscope
       div.row(style='background-color:#afa2b3; width:100%; height:25%; margin:0% 0% 0% 0%;')
         h8#browseLabel(name='joinLiveNextLabel', style='text-align:center;') No live experiments in queue.  Click To Join.
 
   script(type='text/template', id='tmpl-textsubmit')
     div.page-header(style='background-color:#ffffff; width:100%; height:150px; margin:0% 0% 0% 0%;')
-      button.btn.btn-primary.btn-submitTextNext#submitTextNext(type='button', name='submitTextNext', value=-1, style=' margin:0% 0% 0% 0%;width:100%; height:35%', disabled) Text Submit: Send To Queue
+      button.btn.btn-primary.btn-submitTextNext#submitTextNext(type='button', name='submitTextNext', value=-1, style=' margin:0% 0% 0% 0%;width:100%; height:35%', disabled) Submit Pre-Programmed Experiments to Next Available Online Microscopes
       div.row(style='background-color:#afa2b3; width:100%; height:20%; margin:0% 0% 0% 0%;')
         h8#browseLabel(name='browseLabel', style='text-align:center;') No text experiments in queue.  Browse to Add Experiments.
       div.row(style='width:50%;  height:20%; margin:0% 0% 0% 0%;')
@@ -52,7 +52,11 @@ block body
 
   script(type='text/template', id='tmpl-bpuimage')
     div.page-header(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
-      h1(style='text-align:center;') Available Bpus
+      h1(style='text-align:center;') Available Realtime Online Microscopes - Choose One
+      center
+        div.alert.alert-warning
+          strong
+            |Note: You can only run one live experiment at a time
       div.row(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
         - for(var j=0;j<data.eugs.length;j++)
             div.col-sm-3(style='background-color:#ffffff; margin-right:1%; height:320px;')
@@ -65,6 +69,7 @@ block body
                 label#bpuLabelSM(name=data.eugs[j].statusLabelJadeName) #{data.eugs[j].statusLabel}
               div.row
                 img#myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)
+
 
   script(type='text/template', id='tmpl-filters')
     form.filters
@@ -108,10 +113,10 @@ block body
         tr
           th
           th Submission Time
-          th Bpu Name
+          th Microscope Name
           th.stretch Tag
-          th exp_status
-          th id
+          th Status
+          th Experiment ID
       tbody#results-rows
 
   script(type='text/template', id='tmpl-results-row')

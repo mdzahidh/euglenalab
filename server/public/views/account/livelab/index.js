@@ -20,50 +20,50 @@
     roughLabStartDate:null,
     isSocketInitialized:false,
     ledsSetObj:null,
-    
+
     timeForLab:0,
     timeInLab:0,
     timeLeftInLab:0,
     wasTimeSetFromUpdate:false,
-    
+
     updateLoopInterval:null,
-    
+
     getLedsSetObj:function() {
       if(app.mainView.ledsSetObj===null) {
         return null;
       } else {
         return JSON.parse(JSON.stringify(app.mainView.ledsSetObj));
       }
-    }, 
+    },
     setLedsFromLightValues:function(lightValues, evtType, previousTouchState) {
       var point=app.mainView.myJoyStick.getXyFromLightValues(lightValues, previousTouchState+'->setLedsFromLightValues');
 
-      var ledsSetObj=app.mainView.getLedsSetObj(); 
+      var ledsSetObj=app.mainView.getLedsSetObj();
       ledsSetObj.metaData.clientTime=new Date().getTime();
-      
+
       ledsSetObj.metaData.layerX=point.x;
       ledsSetObj.metaData.layerY=point.y;
-      
+
       ledsSetObj.metaData.evtType=evtType;
       ledsSetObj.metaData.touchState=app.mainView.myJoyStickObj.touchState;
       ledsSetObj.metaData.previousTouchState=previousTouchState;
-      
+
       ledsSetObj.metaData.radius=0;
       ledsSetObj.metaData.angle=0;
-      
+
       ledsSetObj.topValue=0;
       ledsSetObj.rightValue=0;
       ledsSetObj.bottomValue=0;
       ledsSetObj.leftValue=0;
-      
+
       app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, previousTouchState+'->setLedsFromLightValues');
     },
     lastSetLedsFromEventDate:new Date().getTime(),
     setLedsFromEventInterval:30,
     setLedsFromEvent:function(evt, evtType, previousTouchState) {
-      var ledsSetObj=app.mainView.getLedsSetObj(); 
+      var ledsSetObj=app.mainView.getLedsSetObj();
       ledsSetObj.metaData.clientTime=new Date().getTime();
-      
+
       ledsSetObj.metaData.layerX=evt.layerX;
       ledsSetObj.metaData.layerY=evt.layerY;
       ledsSetObj.metaData.clientX=evt.clientX;
@@ -73,7 +73,7 @@
       ledsSetObj.metaData.evtType=evtType;
       ledsSetObj.metaData.touchState=app.mainView.myJoyStickObj.touchState;
       ledsSetObj.metaData.previousTouchState=previousTouchState;
-      
+
       app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, previousTouchState+'->setLedsFromEvent');
     },
     setLedsFromObjectAndSendToServer:function(ledsSetObj, from) {
@@ -81,21 +81,21 @@
       //Rest Values
       ledsSetObj.metaData.radius=0;
       ledsSetObj.metaData.angle=0;
-      
+
       ledsSetObj.topValue=0;
       ledsSetObj.rightValue=0;
       ledsSetObj.bottomValue=0;
       ledsSetObj.leftValue=0;
       ledsSetObj=app.mainView.myJoyStick.setLightValuesFromXY(ledsSetObj, from+'->setLedsFromObjectAndSendToServer');
       app.mainView.myLightsObj.update(ledsSetObj);
-      
+
       //only update bpu on interval
       var newDate=new Date();
       if((newDate-app.mainView.lastSetLedsFromEventDate)>=app.mainView.setLedsFromEventInterval) {
         app.mainView.lastSetLedsFromEventDate=newDate;
         app.userSocketClient.ledsSet(ledsSetObj);
       }
-    },    
+    },
     alreadyKicked:false,
     kickUser:function(err, from) {
       if(err) console.log('kickUser', err, from);
@@ -140,19 +140,19 @@
       var label=app.mainView.$el.find('[name="'+ 'timeLeftInLab' +'"]')[0];
       if(label) label.innerHTML=labelMsg;
     },
-    //Tag-Initialize 
+    //Tag-Initialize
     initialize: function() {
-      //Get Window Stats 
+      //Get Window Stats
       window.dispatchEvent(new Event('resize'));
-      
-      app.mainView=this; 
+
+      app.mainView=this;
       app.mainView.user=new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session( JSON.parse( unescape($('#data-session').html()) ) );
       app.mainView.bpu=new app.User(JSON.parse(unescape($('#data-bpu').html())));
       app.mainView.ledsSetObj=new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
       app.mainView.bpuExp=new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
       app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function(objA, objB) {return objB.time-objA.time;});
-      
+
       //Set Lab Times
       app.mainView.timeForLab=app.mainView.bpuExp.attributes.exp_eventsToRun[0].time;
       app.mainView.setTimeLeftInLabLabel(app.mainView.timeForLab, 0, true);
@@ -162,8 +162,8 @@
           app.mainView.isSocketInitialized=false;
           app.mainView.kickUser(err, 'initialize setConnection');
         } else {
-          
-          //My Objects 
+
+          //My Objects
           app.mainView.myLightsObj.build(function(err, dat) {
             app.mainView.myJoyStickObj.build(function(err, dat) {
               app.mainView.isSocketInitialized=true;
@@ -179,27 +179,27 @@
                   app.mainView.startUpdateLoop();
                 });
               }
-            }); 
+            });
           });
         }
-      }); 
+      });
     },
-    //Tag-UpdateLoop  
+    //Tag-UpdateLoop
     startUpdateLoop:function() {
       var frameTime=new Date().getTime();
       var lastFrameTime=frameTime;
       var deltaFrame=frameTime-lastFrameTime;
-      var timerActivatedJoystick=0; 
+      var timerActivatedJoystick=0;
       //Update Loop
       app.mainView.updateLoopInterval=setInterval(function () {
         frameTime=new Date().getTime();
         deltaFrame=frameTime-lastFrameTime;
         lastFrameTime=frameTime;
         timerActivatedJoystick+=deltaFrame;
-        //Set time left in lab 
+        //Set time left in lab
         app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
-        //Fail safe user kick. leds will not be set on bpu if bpu is done.  
+        //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if(app.mainView.timeInLab>(1.25*app.mainView.timeForLab)) {
           app.mainView.kickUser(null, 'updateLoopInterval time up');
@@ -221,7 +221,7 @@
         app.mainView.myJoyStick.update('Joystick');
       }, 20);
     },
-    //Tag-Joystick  
+    //Tag-Joystick
     myJoyStick:null,
     myJoyStickObj:{
       touchState:'up',
@@ -239,7 +239,7 @@
     myLightsObj:{
       doesExist:false,
       build:function(cb_fn) {
-        if(app.mainView.$el.find('[name="'+ 'myTopLight' +'"]')[0] && app.mainView.$el.find('[name="'+ 'myRightLight' +'"]')[0] && 
+        if(app.mainView.$el.find('[name="'+ 'myTopLight' +'"]')[0] && app.mainView.$el.find('[name="'+ 'myRightLight' +'"]')[0] &&
             app.mainView.$el.find('[name="'+ 'myBottomLight' +'"]')[0] && app.mainView.$el.find('[name="'+ 'myLeftLight' +'"]')[0]) {
           app.mainView.myLightsObj.doesExist=true;
           app.mainView.myLights={};
@@ -247,7 +247,7 @@
           app.mainView.myLights.right=app.mainView.$el.find('[name="'+ 'myRightLight' +'"]')[0];
           app.mainView.myLights.bottom=app.mainView.$el.find('[name="'+ 'myBottomLight' +'"]')[0];
           app.mainView.myLights.left=app.mainView.$el.find('[name="'+ 'myLeftLight' +'"]')[0];
-        } 
+        }
         cb_fn(null, null);
       },
       update:function(data) {
@@ -256,7 +256,7 @@
           app.mainView.myLights.right.style.backgroundColor='rgba(255,255,0,'+data.rightValue/100+')';
           app.mainView.myLights.bottom.style.backgroundColor='rgba(255,255,0,'+data.bottomValue/100+')';
           app.mainView.myLights.left.style.backgroundColor='rgba(255,255,0,'+data.leftValue/100+')';
-          
+
           app.mainView.myLights.top.innerHTML=data.topValue;
           app.mainView.myLights.right.innerHTML=data.rightValue;
           app.mainView.myLights.bottom.innerHTML=data.bottomValue;
@@ -264,11 +264,11 @@
         }
       },
     },
-    //Mouse Keyboard Event Controller 
+    //Mouse Keyboard Event Controller
     zeroLeds:{topValue:0, rightValue:0, bottomValue:0, leftValue:0},
     lastMouseMoveTime:new Date().getTime(),
 
-    //Events Router 
+    //Events Router
     setLedsEventController:function(evt, evtType) {
       var previousTouchState=''+app.mainView.myJoyStickObj.touchState;
       if(evtType==='mousedown') {
@@ -278,9 +278,9 @@
         app.mainView.myJoyStickObj.touchState='down';
         //Set Leds
         app.mainView.setLedsFromEvent(evt, evtType, previousTouchState);
-      
+
       } else if(evtType==='mousemove') {
-        
+
         if(app.mainView.myJoyStickObj.touchState==='down' && new Date().getTime()-app.mainView.lastMouseMoveTime>20) {
           app.mainView.lastMouseMoveTime=new Date().getTime();
           //Set Leds
@@ -292,19 +292,19 @@
         app.mainView.myJoyStick.toggleJoystick('off');
         //Set Leds
         app.mainView.setLedsFromLightValues(app.mainView.zeroLeds, evtType, previousTouchState);
-      
+
       } else if(evtType==='mouseup') {
         app.mainView.myJoyStickObj.touchState='up';
         app.mainView.myJoyStick.toggleJoystick('off');
         //Set Leds
         app.mainView.setLedsFromLightValues(app.mainView.zeroLeds, evtType, previousTouchState);
-      
+
       } else if(evtType==='resize') {
         app.mainView.myJoyStickObj.touchState='up';
         app.mainView.myJoyStick.toggleJoystick('off');
         //Set Leds
         app.mainView.setLedsFromLightValues(app.mainView.zeroLeds, evtType, previousTouchState);
-      
+
       } else if(evtType==='myJoyKeys_loop') {  //event is light values
         app.mainView.myJoyStick.toggleJoystick('on');
         app.mainView.setLedsFromLightValues(evt, evtType, previousTouchState);
@@ -315,7 +315,7 @@
     myJoyKeys:null,
     setupKeyboardEvents:function(cb_fn) {
       app.mainView.myJoyKeys={
-        updateTime:20, 
+        updateTime:20,
         deltaValue:2,
         areKeysRunning:false,
         runKeys:function() {
@@ -375,10 +375,10 @@
                   }
                 }
               }, me.updateTime);
-            }; 
+            };
             loop();
           }
-        }, 
+        },
         keys:{
           top:{pairName:'83', name:'top', key:'w', code:87, isMaster:true, isDown:false, value:0},
           bottom:{pairName:'87', name:'bottom', key:'s', code:83, isMaster:false, isDown:false, value:0},
@@ -411,7 +411,7 @@
     },
     //Tag-Mouse
     setupMouseEvents:function(cb_fn) {
-      //Events 
+      //Events
       window.addEventListener('resize', function(evt) {
         //Resize Joystick Canvas
         var joystickCanvas=app.mainView.$el.find('[name="'+ 'myJoystick' +'"]')[0];
@@ -419,7 +419,7 @@
           app.mainView.myJoyStick.resize(joystickCanvas.clientWidth, joystickCanvas.clientHeight);
         }
         app.mainView.setLedsEventController(evt, 'resize');
-      }); 
+      });
       document.addEventListener('mousemove', function(evt) {
         if(app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
           if(evt.target.className==='canvas-joystick-on' || evt.target.className==='canvas-joystick-off') {

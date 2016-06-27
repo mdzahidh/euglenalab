@@ -359,7 +359,7 @@
           }
           else if(bpuPack.liveBpuExperiment) {
             //Title
-            var userPart = '(Free)'
+            var userPart = '(Available)'
             if (bpuPack.liveBpuExperiment.username !== null ){
               userPart = 'User: ' + bpuPack.liveBpuExperiment.username;
             }else if(bpuPack.bpuStatus !== 'resetingDone'){
@@ -373,7 +373,7 @@
             app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
           } else {
             //Title
-            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name+': Free');
+            app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name+': (Available)');
             //User
             app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:'+0+' seconds');
             //Status

@@ -52,6 +52,10 @@ exports.init = function(req, res, next) {
   outcome.bpu=null;
   outcome.webStreamUrl=null;
   outcome.sideStreamUrl=null;
+
+  var getLengthScale100um = function (zoom){
+    return (30.0 * zoom) / 4.0;
+  }
   var getBpuData=function(callback) {
     req.app.db.models.Bpu.findById(outcome.exp.liveBpu.id, {}, function(err, bpuDoc) {
       if(err) {
@@ -60,6 +64,13 @@ exports.init = function(req, res, next) {
         return callback('getBpu err:'+'bpuDoc===null');
       } else {
         outcome.bpu=bpuDoc;
+        if (bpuDoc.magnification !== null){
+          outcome.lengthScale100um = getLengthScale100um( bpuDoc.magnification );
+        }
+        else{
+          outcome.lengthScale100um = 'Unknown'
+        }
+
         outcome.webStreamUrl=bpuDoc.getWebStreamUrl();
         outcome.sideStreamUrl=bpuDoc.getSideStreamUrl();
         return callback(null);
@@ -92,6 +103,7 @@ exports.init = function(req, res, next) {
         data: {
           user:escape(JSON.stringify(outcome.user)),
           bpu:escape(JSON.stringify(outcome.bpu)),
+          lengthScale100um:escape(JSON.stringify(outcome.lengthScale100um)),
           bpuExp:escape(JSON.stringify(outcome.exp)),
           session: escape(JSON.stringify(outcome.sess)),
           divInfo:outcome.divInfo,
@@ -140,7 +152,7 @@ var _setupDiv = function(username, callback) {
   var divInfo={
     mainRowWidth:'75%',
     mainRowHeight:'480px',
-    
+
     mainColWidth:'75%',
     mainColHeight:'100%',
 
@@ -151,7 +163,7 @@ var _setupDiv = function(username, callback) {
     imageHeight:'90%',
 
     hasAside:true,
-    
+
     asideColWidth:'25%',
     asideColHeight:'100%',
 
@@ -164,10 +176,10 @@ var _setupDiv = function(username, callback) {
   if(username==='dirk_joystick') {
     renderJade='account/livelab/indexMuseum';
     divInfo={
-      
+
       mainRowWidth:'100%',
       mainRowHeight:'100%',
-      
+
       mainColWidth:'100%',
       mainColHeight:'100%',
 
@@ -178,7 +190,7 @@ var _setupDiv = function(username, callback) {
       imageHeight:'94%',
 
       hasAside:false,
-      
+
       asideColWidth:'25%',
       asideColHeight:'100%',
 
