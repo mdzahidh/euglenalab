@@ -7,6 +7,16 @@ import numpy as np
 path = sys.argv[1]
 
 measures = ['x','y','vx','vy','s','a','w','h']
+measuresTitle = {
+    'x': 'x',
+    'y' :'y',
+    'vx':'vx',
+    'vy':'vy',
+    's' :'Speed',
+    'a' :'Angle',
+    'w' :'Length',
+    'h' :'Thickness'
+}
 
 if path[-1] != '/':
     path+= '/'
@@ -176,7 +186,7 @@ def writeTracks(workbook,validTracks,measures):
 
     worksheets = {}
     for m in measures:
-        worksheets[m] = workbook.add_worksheet(m);
+        worksheets[m] = workbook.add_worksheet(measuresTitle[m]);
 
     frameData = {}
     trackData = []
@@ -254,7 +264,7 @@ def writeFlatSheetsAggregate(workbook,validTracks,measures):
     header_format = workbook.add_format({'bold': 1})
     worksheets = {}
     for m in measures:
-        worksheets[m] = workbook.add_worksheet(m);
+        worksheets[m] = workbook.add_worksheet(measuresTitle[m]);
 
     allFrames = range(euglena.getNumFrames())
     frameData = [[] for i in range(euglena.getNumFrames())]
@@ -370,7 +380,8 @@ def writeFlatSheetsAggregate(workbook,validTracks,measures):
 def writeFlatSheetsAggregateBatchMesures(workbook,validTracks,measures):
 
     header_format = workbook.add_format({'bold': 1})
-    worksheet = workbook.add_worksheet(','.join(measures));
+    worksheetTitles = [measuresTitle[m] for m in measures];
+    worksheet = workbook.add_worksheet(','.join(worksheetTitles));
 
     allFrames = range(euglena.getNumFrames())
     frameData = [[] for i in range(euglena.getNumFrames())]
@@ -460,7 +471,7 @@ def writeOnDifferentWorksheets(workbook):
     worksheets = {}
 
     for m in measures:
-        worksheets[m] = workbook.add_worksheet(m);
+        worksheets[m] = workbook.add_worksheet(measuresTitle[m]);
 
     data = {}
     for i, track in enumerate(validTracks):
@@ -514,6 +525,111 @@ def writeOnDifferentWorksheets(workbook):
                     worksheets[item].write(j+2, startCol + 2, data[item][j]);
 
 
+def writeTracksWithAvgVelocities(workbook,validTracks,measures,aggMeasures):
+
+    header_format = workbook.add_format({'bold': 1})
+
+    worksheets = {}
+    for m in measures:
+        worksheets[m] = workbook.add_worksheet(measuresTitle[m]);
+
+    frameData = {}
+    trackData = []
+    allTracks = set(range(len(validTracks)))
+    deltaMeasures = ('vx','vy','s')
+    allFrames = range(euglena.getNumFrames())
+    frameData = [[] for i in range(euglena.getNumFrames())]
+
+    for i, track in enumerate(validTracks):
+        x, y, w, h, a, frames = np.array(euglena.extractTrackData(track))
+
+        x = x * UMPP
+        y = y * UMPP
+        w = w * UMPP
+        h = h * UMPP
+
+        frames = np.array(frames,dtype=np.int)
+        dt = (frames[1:] - frames[:-1]) * T
+        vx = (x[1:] - x[:-1]) / dt
+        vy = (y[1:] - y[:-1]) / dt
+        s = np.sqrt(vx * vx + vy * vy)
+
+        for j,f in enumerate(frames):
+            frameData[f-1].append( (i,j) )
+
+        trackData.append( {'x': x, 'y':y, 'vx':vx, 'vy':vy, 's':s, 'a':a, 'w':w, 'h':h, } )
+
+    # allFrames = sorted(frameData.keys(), lambda x,y: x - y )
+
+
+    for m in measures:
+        # worksheets[m].write(0,0,'Variable',header_format)
+        # worksheets[m].write(0, 1, m)
+        #
+        # worksheets[m].write(1, 0, 'Unit',header_format)
+        # worksheets[m].write(1, 1, units[m])
+
+        worksheets[m].write(0, 0, 'frame (#)',header_format)
+        worksheets[m].write(0, 1, 'time (s)',header_format)
+        worksheets[m].write(0, 2, 'top (%)',header_format)
+        worksheets[m].write(0, 3, 'right (%)',header_format)
+        worksheets[m].write(0, 4, 'bottom (%)',header_format)
+        worksheets[m].write(0, 5, 'left (%)',header_format)
+
+        for aggI,aggM in enumerate(aggMeasures):
+            worksheets[m].write(0,6 + aggI, '%s Average [%s]'%(measuresTitle[aggM],units[aggM]),header_format)
+
+        for t in allTracks:
+            worksheets[m].write(0, t + 6 + len(aggMeasures), "%d [%s]"%(validTracks[t]['trackID'],units[m]),header_format)
+
+        for r, f in enumerate(allFrames):
+            row =  r + 1
+            trackSampleList = frameData[f]
+            leds = euglena.getLedStateFromFrame(f);
+
+            # nonEmptyTracks = set( t[0] for t in trackSampleList )
+
+            worksheets[m].write(row, 0, f)
+            worksheets[m].write(row, 1, f * T)
+            for c,l in enumerate(leds):
+                worksheets[m].write(row, 2+c, l)
+
+            for aggI, aggM in enumerate(aggMeasures):
+                totalSum = 0
+                totalN = 0
+                for trackSample in trackSampleList:
+                    trackId, sampleId = trackSample
+                    valid = True
+                    if aggM in deltaMeasures:
+                        if sampleId > 0:
+                            value = trackData[trackId][aggM][sampleId - 1]
+                        else:
+                            value = ''
+                            valid = False
+                    else:
+                        value = trackData[trackId][aggM][sampleId]
+
+                    if valid:
+                        totalSum += float(value)
+                        totalN += 1
+
+                if totalN > 0:
+                    worksheets[m].write(row,  6 + aggI, totalSum / float(totalN) )
+
+            for trackSample in trackSampleList:
+                trackId,sampleId = trackSample
+
+                if m in deltaMeasures:
+                    if sampleId > 0:
+                        value = trackData[trackId][m][sampleId-1]
+                    else:
+                        value = ''
+                else:
+                    value = trackData[trackId][m][sampleId]
+
+                worksheets[m].write( row, trackId + 6 + len(aggMeasures), value )
+
+
 def writeAllTracksAndAllMeasures():
     dest = path + 'Track_Everything_Time_Series.xlsx'
     workbook = xlsxwriter.Workbook(dest)
@@ -539,10 +655,17 @@ def writeDataSet3():
     writeFlatSheetsAggregateBatchMesures(workbook, validTracks, ['vx','vy'])
     workbook.close()
 
+def writeDataSet4():
+    dest = path + 'Track_Speed_With_Average_Velocities_Series.xlsx'
+    workbook = xlsxwriter.Workbook(dest)
+    writeTracksWithAvgVelocities(workbook,validTracks, ['s'],['s','vx','vy'])
+    workbook.close()
+
 try:
     writeAllTracksAndAllMeasures()
     writeDataSet1()
     writeDataSet2()
     writeDataSet3()
+    writeDataSet4()
 except:
     print "Something bad happened while processing Excel files"
