@@ -11,6 +11,8 @@ def warning(*objs):
 
 class EuglenaData(object):
     def __init__(self,path):
+        self._maxFrame = 0
+
         if not path.endswith(os.pathsep):
             path += os.path.sep
 
@@ -27,6 +29,7 @@ class EuglenaData(object):
             samples = self._tracks[i]['samples']
             for j in xrange(len(samples)):
                 samples[j]['frame'] += 1
+                self._maxFrame = max(self._maxFrame, samples[j]['frame'])
 
         self._zoom = self._lightData['metaData']['magnification']
         self._events = self._lightData['eventsToRun']
@@ -46,10 +49,10 @@ class EuglenaData(object):
 
     def getNumFrames(self):
         if "numFrames" in self._lightData['metaData']:
-            return self._lightData['metaData']['numFrames']
+            return max(self._maxFrame, self._lightData['metaData']['numFrames'])
         else:
             warning("Use newer version of data, numFrames information doesn't exists")
-            return 0;
+            return self._maxFrame;
 
     def getTotalTime(self):
         return self._totalTime

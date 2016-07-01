@@ -667,5 +667,5 @@ try:
     writeDataSet2()
     writeDataSet3()
     writeDataSet4()
-except:
-    print "Something bad happened while processing Excel files"
+except Exception as e:
+    print "Something bad happened while processing Excel files:  " + str(e)
