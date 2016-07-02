@@ -580,7 +580,7 @@ def writeTracksWithAvgVelocities(workbook,validTracks,measures,aggMeasures):
             worksheets[m].write(0,6 + aggI, '%s Average [%s]'%(measuresTitle[aggM],units[aggM]),header_format)
 
         for t in allTracks:
-            worksheets[m].write(0, t + 6 + len(aggMeasures), "%d [%s]"%(validTracks[t]['trackID'],units[m]),header_format)
+            worksheets[m].write(0, t + 6 + len(aggMeasures), "%d ( %s [%s] Euglena #%d )"%(validTracks[t]['trackID'],measuresTitle[m], units[m],validTracks[t]['trackID']),header_format)
 
         for r, f in enumerate(allFrames):
             row =  r + 1
