@@ -19,8 +19,7 @@ block body
 
   script(type='text/template', id='tmpl-header')
     div.page-header
-      //- h1
-      //-   title Experiment ID / <%= _id %>
+      h1 Experiment ID: <%= _id %>
       div.video-container
         video(width='100%', controls)
           source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/tracks_thresholded_10.ogg')
@@ -30,10 +29,10 @@ block body
 
       form
         div.form-group
-          label Write track IDs (e.g. 1 2 4-10 to mean track #1 and #2 and #4 to #10 inclusive)
-          input.form-control(type='text', name='trackId')
+          //label Write track IDs (e.g. 1 2 4-10 to mean track #1 and #2 and #4 to #10 inclusive)
+          //input.form-control(type='text', name='trackId')
         div.form-actions
-          button.btn.btn-primary.btn-downloadTrack(type='button',name='btnTrackId') Download Track Data
+          //button.btn.btn-primary.btn-downloadTrack(type='button',name='btnTrackId') Download Track Data
 
 
   script(type='text/template', id='tmpl-identity')

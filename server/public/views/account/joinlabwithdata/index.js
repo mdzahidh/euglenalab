@@ -368,7 +368,12 @@
             app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name + ' ' + userPart );
             //User
             var secondsLeft = Math.round(bpuPack.liveBpuExperiment.bc_timeLeft / 1000);
-            app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:' + secondsLeft + ' seconds');
+            if(secondsLeft >= 0){
+              app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:' + secondsLeft + ' seconds');
+            }
+            else{
+              app.bpuImageView.setUserLabel(bpuPack.index, 'Processing (hang on)');
+            }
             //Status
             app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
           } else {
@@ -402,8 +407,9 @@
           var bpuLiveSecondsWaitTime=Math.round(updateObj.bpuLiveFinishTime/1000);
           liveMsg='On microscope '+updateObj.bpuLiveExp.name+'.  ';
           if(bpuLiveSecondsWaitTime<0) {
-            bpuLiveSecondsWaitTime=-1*bpuLiveSecondsWaitTime;
-            liveMsg+='Processing for '+bpuLiveSecondsWaitTime+' seconds.';
+            //bpuLiveSecondsWaitTime=-1*bpuLiveSecondsWaitTime;
+            //liveMsg+='Processing for '+bpuLiveSecondsWaitTime+' seconds.';
+            liveMsg += 'Processing... (hang on)';
           } else {
             liveMsg+='Wait time is '+bpuLiveSecondsWaitTime+' seconds.';
           }
@@ -413,7 +419,12 @@
         } else if(updateObj.liveQueueExp!==null && updateObj.liveQueueExp!==undefined) {
           var liveSecondsWaitTime=Math.round(updateObj.liveQueueExp.exp_lastResort.totalWaitTime/1000);
           liveMsg='Waiting for microscope '+updateObj.liveQueueExp.exp_lastResort.bpuName+'.  ';
-          liveMsg+='Wait time is '+liveSecondsWaitTime+' seconds.';
+          if(liveSecondsWaitTime < 0 ){
+              liveMsg += 'Processing... (hang on)';
+          }
+          else{
+            liveMsg+='Wait time is '+liveSecondsWaitTime+' seconds.';
+          }
           isLiveDisabled=true;
         }
         //Set Live Message
@@ -439,7 +450,12 @@
           textMsg='No text experiments in queue.  Click To Join.';
         } else {
           var textSecondsWaitTime=Math.round(textWaitTime/1000);
-          textMsg+='Wait time is '+textSecondsWaitTime+' seconds.';
+          if(textSecondsWaitTime >= 0){
+            textMsg+='Wait time is '+textSecondsWaitTime+' seconds.';
+          }
+          else{
+            textMsg+='Processing... (hang on)';
+          }
         }
         app.textSubmitView.setSubmitTextNextLabel(textMsg);
 

@@ -631,7 +631,7 @@ def writeTracksWithAvgVelocities(workbook,validTracks,measures,aggMeasures):
 
 
 def writeAllTracksAndAllMeasures():
-    dest = path + 'Track_Everything_Time_Series.xlsx'
+    dest = path + '01_Track_Everything_Time_Series.xlsx'
     workbook = xlsxwriter.Workbook(dest)
     writeTracks(workbook, validTracks, measures)
     workbook.close()
@@ -656,7 +656,7 @@ def writeDataSet3():
     workbook.close()
 
 def writeDataSet4():
-    dest = path + 'Track_Speed_With_Average_Velocities_Series.xlsx'
+    dest = path + '02_Track_Speed_With_Average_Velocities_Series.xlsx'
     workbook = xlsxwriter.Workbook(dest)
     writeTracksWithAvgVelocities(workbook,validTracks, ['s'],['s','vx','vy'])
     workbook.close()

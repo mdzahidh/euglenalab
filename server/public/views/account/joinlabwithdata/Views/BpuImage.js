@@ -3,17 +3,17 @@
   'use strict';
   app=app || {};
   app.BpuImageView = Backbone.View.extend({
-    
+
     el: '#bpuimage',
     template: _.template( $('#tmpl-bpuimage').html() ),
-    
+
     events: {
       'click .btn-joinLiveBpu': 'btnClick_joinLiveBpu',
       'click .btn-submitTextBpu': 'btnClick_submitTextBpu'
     },
     //Join Button Action
     btnClick_joinLiveBpu:function(evt) {
-      var wantsBpuName='eug'+evt.target.value; 
+      var wantsBpuName='eug'+evt.target.value;
       app.mainView.submitExperimentFromViews('live', wantsBpuName, function(err) {
         if(err) {
           console.log('btnClick_joinLiveBpu live submission err:'+err);
@@ -23,7 +23,7 @@
       });
     },
     btnClick_submitTextBpu:function(evt) {
-      var wantsBpuName='eug'+evt.target.value; 
+      var wantsBpuName='eug'+evt.target.value;
       app.mainView.submitExperimentFromViews('text', wantsBpuName, function(err) {
         if(err) {
           console.log('btnClick_joinLiveBpu text submission err:'+err);
@@ -32,8 +32,8 @@
         }
       });
     },
-    //Join Button Enable/Disable 
-    disablePrintOn:false, 
+    //Join Button Enable/Disable
+    disablePrintOn:false,
     disableAll:function(bVal, caller) {
       var me=this;
       if(me.disablePrintOn) console.log('disableAll', bVal, caller);
@@ -80,16 +80,32 @@
       me.$el.html(me.template( me.model.attributes ));
     },
     updateOneBpuUI:function(bpuInfo, expInfo, isJoinLiveDisabled, isTextSubmitDisabled) {
-      //Queue Info 
-      var titleLabel=bpuInfo.name+': Wait is '+app.mainView.roundMsToMins(bpuInfo.timeToFinish)+' minutes.';
+      //Queue Info
+      var timeToFinish = app.mainView.roundMsToMins(bpuInfo.timeToFinish);
+      var titleLabel = bpuInfo.name;
+
+      if(timeToFinish >= 0){
+        titleLabel += ': Wait is '+timeToFinish+' minutes.';
+      }
+      else{
+        titleLabel += 'Processing.. (hang on)';
+      }
+
       app.bpuImageView.setTitleLabel(bpuInfo.index, titleLabel);
       var statusLabel='Status: '+bpuInfo.bpuStatus;
       app.bpuImageView.setStatusLabel(bpuInfo.index, titleLabel);
-      //Live Button 
+      //Live Button
       app.bpuImageView.disableLiveButton(bpuInfo.index, isJoinLiveDisabled);
-      //On Bpu 
+      //On Bpu
       if(expInfo!==null) {
-        var userLabel=expInfo.username+' has '+app.mainView.roundMsToSeconds(expInfo.timeLeft)+' seconds left.';
+        var timeLeft = app.mainView.roundMsToSeconds(expInfo.timeLeft);
+        var userLabel = expInfo.username;
+        if(timeLeft >= 0){
+            userLabel += ' has '+ timeLeft +' seconds left.';
+        }
+        else{
+            userLabel += ' taking extra seconds.';
+        }
         app.bpuImageView.setUserLabel(bpuInfo.index, userLabel);
       } else {
         app.bpuImageView.setUserLabel(bpuInfo.index, 'No User.');
