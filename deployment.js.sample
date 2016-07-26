@@ -1,0 +1,43 @@
+module.exports = {
+    mode: 'dev',
+    publicIP: '171.65.102.104',
+
+    production: {
+        db: 'master',
+        webserver: {
+            port:3000,
+            name: 'InternalWeb1',
+            ident:'b3cagcde2684ebd2cba325555ec2703b',
+            key:null,
+        },
+        controller: {port:3200},
+        liveLabTime: 60 * 1000,
+        liveMuseumLabTime: 60 * 1000,
+    },
+
+    stage: {
+        db: 'stage',
+        webserver: {
+            port:4000,
+            name: 'InternalWeb1',
+            ident:'b3cagcde2684ebd2cba325555ec2703b',
+            key:null,
+        },
+        controller: {port: 4200},
+        liveLabTime: 60 * 1000,
+        liveMuseumLabTime: 60 * 1000,
+    },
+
+    dev: {
+        db: 'dev',
+        webserver: {
+            port:5000,
+            name: 'InternalWeb1',
+            ident:'b3cagcde2684ebd2cba325555ec2703b',
+            key:null,
+        },
+        controller: {port: 5200},
+        liveLabTime: 15 * 1000,
+        liveMuseumLabTime: 15 * 1000,
+    },
+}
