@@ -155,11 +155,6 @@ exports.find = function(req, res, next) {
         return next(err);
       }
       outcome.results=results;
-      if(req.xhr) {
-        res.header("Cache-Control", "no-cache, no-store, must-revalidate");
-        results.filters = req.query;
-        res.send(results);
-      }
       outcome.results.filters=req.query;
       return callback(null);
     });
@@ -190,7 +185,13 @@ exports.find = function(req, res, next) {
     if(err) {
       return next(err);
     } else {
-      res.render('account/joinlabwithdata/index', {data:outcome.data});
+      if(req.xhr) {
+        res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+        res.send(outcome.results);
+      }
+      else {
+        res.render('account/joinlabwithdata/index', {data: outcome.data});
+      }
     }
   });
 };
