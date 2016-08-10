@@ -98,7 +98,7 @@ class EuglenaDetector(object):
         self._frameAngles = []
         self._debug = False
         self._zoom = zoom
-        self._lengthFactor = 1 # we are not setting the lengthFactor
+        self._lengthFactor = 1 #self._zoom / 10.0
         self._areaFactor = (zoom / 10.0) ** 2
         self._media = Media(movieFile)
         self._kernelErode  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(int(round(3 * self._lengthFactor)),int(round(3 * self._lengthFactor))))
@@ -116,8 +116,8 @@ class EuglenaDetector(object):
             if ret == False:
                 break
 
-            gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)            
-            grayN = gray            
+            gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+            grayN = cv2.equalizeHist(gray)
             fgmask = self.__FGBG.apply(grayN)
 
             ret,thresh = cv2.threshold(fgmask,127,255,0)
