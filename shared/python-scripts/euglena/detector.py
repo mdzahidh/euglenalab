@@ -1,6 +1,7 @@
 import cv2
 import glob
 import numpy as np
+import math
 
 import multiprocessing as mp
 from multiprocessing import Manager
@@ -95,13 +96,13 @@ class EuglenaDetector(object):
     def __init__(self,movieFile,zoom=10):
         self._frameRects = []
         self._frameAngles = []
-        self._debug = True
+        self._debug = False
         self._zoom = zoom
-        self._lengthFactor = self._zoom / 10.0
+        self._lengthFactor = 1 # we are not setting the lengthFactor
         self._areaFactor = (zoom / 10.0) ** 2
         self._media = Media(movieFile)
-        self._kernelErode  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3 * self._lengthFactor,3 * self._lengthFactor))
-        self._kernelDilate = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5 * self._lengthFactor,5 * self._lengthFactor))
+        self._kernelErode  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(int(round(3 * self._lengthFactor)),int(round(3 * self._lengthFactor))))
+        self._kernelDilate = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(int(round(5 * self._lengthFactor)),int(round(5 * self._lengthFactor))))
 
     def detect(self):
 
@@ -115,8 +116,8 @@ class EuglenaDetector(object):
             if ret == False:
                 break
 
-            gray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-            grayN = cv2.equalizeHist(gray)
+            gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)            
+            grayN = gray            
             fgmask = self.__FGBG.apply(grayN)
 
             ret,thresh = cv2.threshold(fgmask,127,255,0)
@@ -132,7 +133,7 @@ class EuglenaDetector(object):
 
             for i in xrange(len(contours)):
                 contourArea = cv2.contourArea(contours[i])
-                if  (contourArea > self.__CONTOUR_AREA_TRESHOLD[0] * self._areaFactor) and (countourArea < self.__CONTOUR_AREA_TRESHOLD[1] * self._areaFactor) :
+                if  (contourArea > self.__CONTOUR_AREA_TRESHOLD[0] * self._areaFactor) and (contourArea < self.__CONTOUR_AREA_TRESHOLD[1] * self._areaFactor) :
                     rect = cv2.minAreaRect(contours[i])
                     rectangles.append( rect )
 
