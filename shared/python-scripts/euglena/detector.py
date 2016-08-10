@@ -87,18 +87,21 @@ class Media(object):
         #print self._finished.value
 
 class EuglenaDetector(object):
-    __KERNEL_ERODE          = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
-    __KERNEL_DILATE         = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+    # __KERNEL_ERODE          = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+    # __KERNEL_DILATE         = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
     __FGBG                  = cv2.createBackgroundSubtractorMOG2(detectShadows=False)
-    __CONTOUR_AREA_TRESHOLD = 250
+    __CONTOUR_AREA_TRESHOLD = (150,1500)
 
     def __init__(self,movieFile,zoom=10):
         self._frameRects = []
         self._frameAngles = []
         self._debug = True
         self._zoom = zoom
+        self._lengthFactor = self._zoom / 10.0
         self._areaFactor = (zoom / 10.0) ** 2
         self._media = Media(movieFile)
+        self._kernelErode  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3 * self._lengthFactor,3 * self._lengthFactor))
+        self._kernelDilate = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5 * self._lengthFactor,5 * self._lengthFactor))
 
     def detect(self):
 
@@ -112,11 +115,13 @@ class EuglenaDetector(object):
             if ret == False:
                 break
 
-            fgmask = self.__FGBG.apply(frame)
+            gray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+            grayN = cv2.equalizeHist(gray)
+            fgmask = self.__FGBG.apply(grayN)
 
             ret,thresh = cv2.threshold(fgmask,127,255,0)
-            fgmask = cv2.morphologyEx(thresh, cv2.MORPH_ERODE,self.__KERNEL_ERODE)
-            fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_DILATE, self.__KERNEL_ERODE)
+            fgmask = cv2.morphologyEx(thresh, cv2.MORPH_ERODE,self._kernelErode)
+            fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_DILATE, self._kernelDilate)
             #fgmask = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,self._KERNEL_ERODE)
             _,contours,_ = cv2.findContours(fgmask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
             rectangles = []
@@ -126,7 +131,8 @@ class EuglenaDetector(object):
                 drawFrame = frame.copy()
 
             for i in xrange(len(contours)):
-                if cv2.contourArea(contours[i]) > self.__CONTOUR_AREA_TRESHOLD * self._areaFactor:
+                contourArea = cv2.contourArea(contours[i])
+                if  (contourArea > self.__CONTOUR_AREA_TRESHOLD[0] * self._areaFactor) and (countourArea < self.__CONTOUR_AREA_TRESHOLD[1] * self._areaFactor) :
                     rect = cv2.minAreaRect(contours[i])
                     rectangles.append( rect )
 
