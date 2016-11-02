@@ -57,6 +57,14 @@ function accountOrFront(req,res,next) {
 exports = module.exports = function(app, passport) {
   //front end
   //app.get('/', require('./views/index').init);
+
+  // app.post('/api/auth/register/', require('./views/api/index').register);
+  // app.post('/api/auth/login/', require('./views/api/index').login);
+  // app.get('/api/bio-units/', passport.authenticate('jwt', { session: false}), require('./views/api/index').get_bio_units);
+  // app.post('/api/experiment/', passport.authenticate('jwt', { session: false}), require('./views/api/index').create_experiment);
+  // app.get('/api/experiment/:id/status/', passport.authenticate('jwt', { session: false}), require('./views/api/index').get_experiment_status);
+  // app.get('/api/experiment/:id/', passport.authenticate('jwt', { session: false}), require('./views/api/index').get_experiment_detail);
+
   app.get('/', accountOrFront);
   app.get('/about/', require('./views/about/index').init);
   app.get('/contact/', require('./views/contact/index').init);

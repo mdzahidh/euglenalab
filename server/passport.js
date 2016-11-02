@@ -2,6 +2,8 @@
 
 exports = module.exports = function(app, passport) {
   var LocalStrategy = require('passport-local').Strategy,
+      JwtStrategy = require('passport-jwt').Strategy,
+      ExtractJwt = require('passport-jwt').ExtractJwt,
       TwitterStrategy = require('passport-twitter').Strategy,
       GitHubStrategy = require('passport-github').Strategy,
       FacebookStrategy = require('passport-facebook').Strategy,
@@ -41,6 +43,26 @@ exports = module.exports = function(app, passport) {
       });
     }
   ));
+
+  app.jwtOptions = {
+    secretOrKey: '%Q#$%#$BTERVWW^BSYERYRUFJUYDERBYR$VSTET%#$^^#(*(%&#ERSGW$'
+  };
+
+app.jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+
+passport.use(new JwtStrategy(app.jwtOptions, function(jwt_payload, done) {
+  app.db.models.User.findOne({id: jwt_payload.sub}, function(err, user) {
+    if (err) {
+        return done(err, false);
+    }
+    if (user) {
+        done(null, user);
+    } else {
+        done(null, false);
+        // or you could create a new account
+    }
+  });
+}));
 
   if (app.config.oauth.twitter.key) {
     passport.use(new TwitterStrategy({
@@ -134,4 +156,6 @@ exports = module.exports = function(app, passport) {
       }
     });
   });
+
+
 };

@@ -229,8 +229,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-newer');
 
-  var defaultTasks = ['copy:vendor', 'newer:less', 'concurrent'];
-  var buildTasks = ['copy:vendor','less'];
+  var defaultTasks = ['copy:vendor', 'newer:uglify', 'newer:less', 'concurrent'];
+  var buildTasks = ['copy:vendor','uglify', 'less'];
 
   if(compress) {
     defaultTasks.splice(0,0,'newer:uglify');

@@ -1,0 +1,15 @@
+{
+  "name": "engin",
+  "version": "0.0.1",
+  "description": "client",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shirish Goyal <shirish.goyal@stanford.edu>",
+  "license": "MIT",
+  "dependencies": {
+    "node-rest-client": "^2.0.1",
+    "socket.io-client": "~1.5.1"
+  }
+}

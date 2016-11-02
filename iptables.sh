@@ -18,7 +18,7 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
 
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 3000
 
-# For the BPU Cameras for external packets
+# For the BPU Cameras for external packets (reserve 5 ports per BPU - starts from 20000 => 218 : 18*5 = 90 => 20090)
 sudo iptables -t nat -A PREROUTING -p tcp --dport 20090 -j DNAT --to 192.168.1.218:8080
 sudo iptables -t nat -A PREROUTING -p tcp --dport 20095 -j DNAT --to 192.168.1.219:8080
 sudo iptables -t nat -A PREROUTING -p tcp --dport 20100 -j DNAT --to 192.168.1.220:8080
