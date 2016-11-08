@@ -13,19 +13,18 @@ var router = {
 var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
-    // socketClientServerIP: '171.65.102.104',
-    socketClientServerIP: 'localhost',
-    socketClientServerPort: 5200
+    socketClientServerIP: 'localhost', //'biotic.stanford.edu',
+    socketClientServerPort: 5200 //8084
 };
 
 var user = {
-    id: '5821046dbc2185411c4ba7fd', //'574885898bf18b9508193e2a',
+    id: '582125878414c9532bafabaa', //'574885898bf18b9508193e2a',
     name: 'radiantllama',
     groups: ['default']
 };
 
 var session = {
-    id: '5820fffd5781d5ddfd951ffa', //'574885a08bf18b9508193e2c',
+    id: '582117b8ba3546ad26e4a452', //'574885a08bf18b9508193e2c',
     sessionID: 'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu', //'f5wrk6pHdo8bzWgPyd9qDtUtY26HsJCe',
     socketID: null,
     socketHandle: '/account/joinlabwithdata',
@@ -40,7 +39,6 @@ var socket = io.connect(domain, {multiplex: false, reconnect: true});
 socket.on(router.disconnect, function () {
     console.error('BPU controller disconnected');
 });
-
 
 socket.on(router.connect, function () {
     console.info('BPU controller connected');
@@ -113,6 +111,9 @@ socket.prepareExperiment = function (inputFiles, auth, queueObj) {
             obj.session.sessionID = session.sessionID;
             obj.session.socketHandle = session.socketHandle;
             obj.session.socketID = session.socketID;
+
+            obj.session.user = user;
+            obj.session.user.groups = session.groups;
 
             obj.exp_metaData.group_experimentType = obj.group_experimentType;
             obj.exp_wantsBpuName = null; // don't choose any specific bpu
