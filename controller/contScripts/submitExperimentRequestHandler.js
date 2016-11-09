@@ -58,6 +58,8 @@ exports=module.exports=function(app, socketServerInfo, joinQueueDataArray, callb
 
   outcome.validationObjs=[];
   outcome.validationPassedCnt=0;
+
+  
   var _parseJoinQueueDataArray=function(callbackToMainFunction) {
     var parseJoinQueueData=function(cb_parseJoinQueueData) {
       var joinQueueData=this.joinQueueData;

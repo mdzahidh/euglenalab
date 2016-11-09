@@ -13,20 +13,23 @@ var router = {
 var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
-    // socketClientServerIP: '171.65.102.104',
-    socketClientServerIP: 'localhost',
-    socketClientServerPort: 5200
+    socketClientServerIP: 'biotic.stanford.edu',
+    // socketClientServerIP: 'localhost',
+    socketClientServerPort: 8084
 };
 
 var user = {
-    id: '5821046dbc2185411c4ba7fd', //'574885898bf18b9508193e2a',
+    id: '574885898bf18b9508193e2a',
+    // id: '5821046dbc2185411c4ba7fd', //local
     name: 'radiantllama',
     groups: ['default']
 };
 
 var session = {
-    id: '5820fffd5781d5ddfd951ffa', //'574885a08bf18b9508193e2c',
-    sessionID: 'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu', //'f5wrk6pHdo8bzWgPyd9qDtUtY26HsJCe',
+    id: '574885a08bf18b9508193e2c',
+    sessionID: 'f5wrk6pHdo8bzWgPyd9qDtUtY26HsJCe',
+    // id: '5820fffd5781d5ddfd951ffa', // local
+    // sessionID: 'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu',
     socketID: null,
     socketHandle: '/account/joinlabwithdata',
     url: '/account/joinlabwithdata'
@@ -86,7 +89,7 @@ socket.on(router.connect, function () {
 socket.on('update', function (bpuList, experimentList, queue) {
     console.log("******** experiment queue updated *********");
     // console.log(bpuList);
-    // console.log(experimentList);
+    console.log(experimentList);
     console.log(queue);
 });
 
@@ -115,7 +118,7 @@ socket.prepareExperiment = function (inputFiles, auth, queueObj) {
             obj.session.socketID = session.socketID;
 
             obj.exp_metaData.group_experimentType = obj.group_experimentType;
-            obj.exp_wantsBpuName = null; // don't choose any specific bpu
+            obj.exp_wantsBpuName = null; // choose any specific bpu or leave it null for any bpu
 
             obj.exp_metaData.clientCreationDate = new Date();
             obj.exp_metaData.userUrl = session.url;

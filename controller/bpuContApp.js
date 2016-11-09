@@ -133,14 +133,22 @@ var setupSocketClientServer=function(callback) {
   var server=require('http').createServer(function(req, res) {
     app.logger.warn(moduleName+' fn_serverHandler');
   });
+
   app.logger.debug('setupSocketClientServer@'+app.initParams.socketClientServerIP+':'+app.initParams.socketClientServerPort);
+
   console.log('setupSocketClientServer@'+app.initParams.socketClientServerIP+':'+app.initParams.socketClientServerPort);
+
   server.listen(app.initParams.socketClientServerPort, app.initParams.socketClientServerIP);
+
   app.socketClientIo=socketIo(server);
+
   app.socketClientIo.on('connection', function(socket) {
     app.logger.info('socketClientIo:'+'connection:'+'socketid:'+socket.id);
+
     console.log('socketClientIo:'+'connection:'+'socketid:'+socket.id);
+
     app.socketConnections.push(socket);
+
     socket.on('setConnection', function(serverInfo, cbfn_setConn) {
       _verifyServerSocketConnection(serverInfo, function(err) {
         if(err) {
