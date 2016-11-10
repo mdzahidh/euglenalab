@@ -209,9 +209,11 @@
     roundMsToMins:function(ms) {
       return Math.floor(ms/60000);
     },
+
     roundMsToSeconds:function(ms) {
       return Math.round(ms/1000);
     },
+
     //Experiment Info Object/hold loaded text files
     userExpInfo:{
       isSubmitting:false,
@@ -222,11 +224,14 @@
       queueTextRunTime:0,
       queueTextFiles:0,
     },
+    
     //Only Path to start join Queue Seq, called from one location in each, BpuImage, LiveJoin, TextSubmit
     submitExperimentFromViews:function(type, wantsBpuName) {
       //Disable UI
       app.mainView.disableUI('app.mainView.submitExperimentFromViews');
+
       console.log('1. submitExperimentFromViews', 'true?:'+app.userSocketClient.isInitialized, 'false?:'+app.mainView.userExpInfo.isSubmitting);
+      
       if(app.userSocketClient.isInitialized && !app.mainView.userExpInfo.isSubmitting) {
         app.mainView.userExpInfo.isSubmitting=true;
         var joinQueueDataObjects=[];

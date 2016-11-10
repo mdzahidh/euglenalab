@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "node-rest-client": "^2.0.1",
-    "socket.io-client": "~1.5.1"
+    "socket.io-client": "~1.5.1",
+    "lodash": "^4.16.6"
   }
 }

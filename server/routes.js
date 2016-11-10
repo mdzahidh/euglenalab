@@ -209,6 +209,9 @@ exports = module.exports = function(app, passport) {
   //admin > search
   app.get('/admin/search/', require('./views/admin/search/index').find);
 
+  // let download happen without authentication
+  app.get('/account/joinlabwithdata/download/:id/', require('./views/account/joinlabwithdata/index').download);
+
   //account
   app.all('/account*', ensureAuthenticated);
   app.all('/account*', ensureAccount);
