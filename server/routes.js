@@ -210,7 +210,7 @@ exports = module.exports = function(app, passport) {
   app.get('/admin/search/', require('./views/admin/search/index').find);
 
   // let download happen without authentication
-  app.get('/account/joinlabwithdata/download/:id/:filename/', require('./views/account/joinlabwithdata/index').downloadFile);
+  app.get('/account/joinlabwithdata/downloadFile/:id/:filename/', require('./views/account/joinlabwithdata/index').downloadFile);
 
   //account
   app.all('/account*', ensureAuthenticated);
