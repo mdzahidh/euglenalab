@@ -266,7 +266,7 @@ exports.downloadFile = function (req, res, next) {
             return next('Find Experiment Error:' + 'exp dne');
         } else {
             var destPath = __dirname.split('/server/')[0] + '/' + 'server/public/media/finalBpuDataLinks/finalBpuData';
-            var path = destPath + '/' + req.params.filename;
+            var path = destPath + '/' +req.params.id + "/"+ req.params.filename;
 
             send(path, req.params.filename);
         }
