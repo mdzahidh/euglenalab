@@ -268,7 +268,7 @@ exports.downloadFile = function (req, res, next) {
             var destPath = __dirname.split('/server/')[0] + '/' + 'server/public/media/finalBpuDataLinks/finalBpuData';
             var path = destPath + '/' + req.params.filename;
 
-            send(path, filename);
+            send(path, req.params.filename);
         }
     });
 };
