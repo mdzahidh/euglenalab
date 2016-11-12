@@ -15,7 +15,7 @@ var app={
     loggerLevel:'INFO',
     //Mongo/Mongoose DB
     mongoUri:require('../shared/mainConfig.js').adminFlags.getMongoUri(), // production, dev, stage
-    socketClientServerIP:'localhost',
+    socketClientServerIP:'0.0.0.0',
     socketClientServerPort:require('../shared/mainConfig.js').adminFlags.getControllerPort(),
   },
   runParams:{

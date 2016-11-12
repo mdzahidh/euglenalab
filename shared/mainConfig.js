@@ -21,7 +21,7 @@ var exports=module.exports={
         return g_ControllerPort;
     },
     getWebServerAddr:function() {
-      return 'http://'+'localhost'+':'+this.getWebServerPort();
+      return 'http://'+'0.0.0.0'+':'+this.getWebServerPort();
     },
     getWebServerIdentifier:function() {
         return g_WebserverIdent;

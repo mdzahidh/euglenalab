@@ -151,7 +151,7 @@ app.server.listen(app.config.port, function () {
             var serverInfo = {
                 Identifier: app.config.myWebServerIdentifier,
                 name: app.config.myWebServerName,
-                socketClientServerIP: 'localhost',
+                socketClientServerIP: '0.0.0.0',
                 socketClientServerPort: app.config.myControllerPort
             };
 
