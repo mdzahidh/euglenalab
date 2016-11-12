@@ -11,12 +11,20 @@ sudo iptables -Z; # zero counters
 sudo iptables -F; # flush (delete) rules
 sudo iptables -X; # delete all extra chains
 
+
+sudo iptables -t nat -F; # delete all extra chains
+
+
 # For the webserver for external and internal packets
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
+#sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
+sudo iptables -t nat -A PREROUTING -p tcp --dport 8084 -j REDIRECT --to-port 5200
 # sudo iptables -t nat -A PREROUTING -p tcp --dport 8080 -j REDIRECT --to-port 4000
 # sudo iptables -t nat -A PREROUTING -p tcp --dport 8081 -j REDIRECT --to-port 5000
 
-sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 3000
+#sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 3000
+sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 5000
+sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 8084 -j REDIRECT --to-ports 5200
 
 # For the BPU Cameras for external packets (reserve 5 ports per BPU - starts from 20000 => 218 : 18*5 = 90 => 20090)
 sudo iptables -t nat -A PREROUTING -p tcp --dport 20090 -j DNAT --to 192.168.1.218:8080
@@ -38,7 +46,11 @@ sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 20100 -j DNAT --to 192.168.1
 
 # So that Public IP addresses works internally too
 sudo iptables -t nat -I OUTPUT -p tcp -d $PUBLIC_IP -j DNAT --to 192.168.1.100
-sudo iptables -t nat -I OUTPUT -p tcp --dport 80 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000
+#sudo iptables -t nat -I OUTPUT -p tcp --dport 80 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000
+sudo iptables -t nat -I OUTPUT -p tcp --dport 80 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:5000
+sudo iptables -t nat -I OUTPUT -p tcp --dport 8084 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:5200
+
+#sudo iptables -t nat -I OUTPUT -p tcp --dport 80 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000
 # sudo iptables -t nat -I OUTPUT -p tcp --dport 2000 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:2000
 # sudo iptables -t nat -I OUTPUT -p tcp --dport 3000 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:3000
 # sudo iptables -t nat -I OUTPUT -p tcp --dport 4000 -d $PUBLIC_IP -j DNAT --to 192.168.1.100:4000
