@@ -154,12 +154,15 @@ exports.find = function (req, res, next) {
             if (err) {
                 return callback(err);
             }
+
             outcome.results = results;
-            if (req.xhr) {
-                res.header("Cache-Control", "no-cache, no-store, must-revalidate");
-                results.filters = req.query;
-                res.send(results);
-            }
+
+            // if (req.xhr) {
+            //     res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+            //     results.filters = req.query;
+            //     res.send(results);
+            // }
+
             outcome.results.filters = req.query;
             return callback(null);
         });
