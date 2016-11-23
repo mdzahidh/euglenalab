@@ -7,6 +7,8 @@ var app = app || {};
 app.experiments = [];
 app.downloads = [];
 
+
+//*** DO NOT MODIFY THIS SECTION **********
 var router = {
     connect: 'connect',
     disconnect: 'disconnect',
@@ -18,37 +20,44 @@ var router = {
 var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
-    socketClientServerIP: 'localhost', //'biotic.stanford.edu',
-    socketClientServerPort: 5200 //8084
-    // socketClientServerIP: 'biotic.stanford.edu',
-    // socketClientServerPort: 8084
+    socketClientServerIP: 'biotic.stanford.edu',
+    socketClientServerPort: 8084
 };
 
 var user = {
-    id: '582125878414c9532bafabaa', //'574885898bf18b9508193e2a',
+    id: '582125878414c9532bafabaa',
     name: 'radiantllama',
     groups: ['default']
 };
 
 var session = {
-    id: '582117b8ba3546ad26e4a452', //'574885a08bf18b9508193e2c',
-    sessionID: 'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu', //'f5wrk6pHdo8bzWgPyd9qDtUtY26HsJCe',
+    id: '582117b8ba3546ad26e4a452',
+    sessionID: 'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu',
     socketID: null,
     socketHandle: '/account/joinlabwithdata',
     url: '/account/joinlabwithdata'
 };
 
-var downloadServer = "http://localhost:5000/account/joinlabwithdata/download/";
+var downloadServer = "http://" + serverInfo.socketClientServerIP + "/account/joinlabwithdata/downloadFile/";
 
 var domain = "http://" + serverInfo.socketClientServerIP + ":" + serverInfo.socketClientServerPort;
-console.info('connecting to BPU controller at ' + domain);
+//*** DO NOT MODIFY THIS SECTION **********
 
+
+// connect to BPU controller
+console.info('connecting to BPU controller at ' + domain);
 var socket = io.connect(domain, {multiplex: false, reconnect: true});
 
+
+// register listener hooks
+
+// on connection lost
 socket.on(router.disconnect, function () {
     console.error('BPU controller disconnected');
 });
 
+
+// on connection
 socket.on(router.connect, function () {
     console.info('BPU controller connected');
 
@@ -57,7 +66,6 @@ socket.on(router.connect, function () {
             console.error(err);
         } else {
             console.info('connected with ' + auth.Name);
-            // console.log(auth);
 
             app.auth = auth;
             session['socketID'] = socket.id;
@@ -66,6 +74,8 @@ socket.on(router.connect, function () {
                 // console.log(queueObj);
 
                 if (!err) {
+
+                    // format of input files to setup an experiment
                     var inputFiles = [{
                         eventsToRun: [
                             {topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0, time: 0},
@@ -83,6 +93,7 @@ socket.on(router.connect, function () {
 
                     }];
 
+                    // trigger an experiment using text mode
                     socket.prepareExperiment(inputFiles, app.auth, queueObj);
                 }
             });
@@ -90,28 +101,39 @@ socket.on(router.connect, function () {
     });
 });
 
-socket.on('update', function (bpuList, experimentList, queue) {
-    //console.log(bpuList);
-    //console.log(experimentList);
-    //console.log(queue);
 
+// keep updating the current status of BPUs and experiment queue
+socket.on('update', function (bpuList, experimentList, queue) {
     var experiments = _.filter(bpuList, function (bpu) {
         return bpu.isOn && bpu.bpuStatus == "running" && bpu.liveBpuExperiment.username == user.name && _.indexOf(app.experiments, bpu.liveBpuExperiment.id) >= 0;
     });
+
+    console.log(queue);
 
     if (experiments && experiments.length > 0) {
         experiments.forEach(function (bpu) {
             console.log("Experiment " + bpu.liveBpuExperiment.id + " running on " + bpu.name + " : " + bpu.liveBpuExperiment.bc_timeLeft / 1000 + " seconds left");
 
             if (bpu.liveBpuExperiment.bc_timeLeft < 2000 && _.indexOf(app.downloads, bpu.liveBpuExperiment.id) < 0) {
+
+                // cache experiment id once it is complete
                 app.downloads.push(bpu.liveBpuExperiment.id);
 
                 console.log("processing experiment...");
 
-                setTimeout(function(){
+                setTimeout(function () {
                     console.log("downloading experiment...");
-                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/", bpu.liveBpuExperiment.id + ".tar.gz");
-                }, 30000);
+
+                    // download all experiment files
+                    // use any particular file based on requirement
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/", bpu.liveBpuExperiment.id + ".json" + "/");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "lightdata.json" + "/", "lightdata.json");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "movie.mp4" + "/", "movie.mp4");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.mp4" + "/", "tracks_thresholded_10.mp4");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "lightdata_meta.json" + "/", "lightdata_meta.json");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "tracks.json" + "/", "tracks.json");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.ogg" + "/", "tracks_thresholded_10.ogg");
+                }, 30000); // processing takes about 15-20 seconds
 
             }
         });
@@ -119,6 +141,8 @@ socket.on('update', function (bpuList, experimentList, queue) {
 
 });
 
+
+// setting up experiment and pushing to queue
 socket.prepareExperiment = function (inputFiles, auth, queueObj) {
     var queue = [];
 
@@ -132,7 +156,7 @@ socket.prepareExperiment = function (inputFiles, auth, queueObj) {
 
     if (queue.length > 0) {
 
-        //Add common data to all
+        //Add common data to all - user and session info
         queue.forEach(function (obj) {
             obj.user.id = user.id;
             obj.user.name = user.name;
@@ -153,8 +177,13 @@ socket.prepareExperiment = function (inputFiles, auth, queueObj) {
             obj.exp_metaData.userUrl = session.url;
         });
 
+        var submitExperiment = function (auth, queue, callback) {
+            socket.emit(router.submitExperiment, auth, queue, function (err, res) {
+                callback(err, res);
+            });
+        };
 
-        socket.submitExperiment(auth, queue, function (err, res) {
+        submitExperiment(auth, queue, function (err, res) {
             console.log("******** submit experiment response *********");
 
             if (err != null) {
@@ -164,17 +193,13 @@ socket.prepareExperiment = function (inputFiles, auth, queueObj) {
             if (err == null && res && res.length > 0) {
                 // this data can be persisted in database to query experiments later.
                 // for now it is all in-memory based
+                console.log(res);
                 app.experiments.push(res[0]._id);
             }
         });
     }
 };
 
-socket.submitExperiment = function (auth, queue, callback) {
-    socket.emit(router.submitExperiment, auth, queue, function (err, res) {
-        callback(err, res);
-    });
-};
 
 socket.download = function (url, dest) {
     var file = fs.createWriteStream(dest);

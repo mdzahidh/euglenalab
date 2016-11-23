@@ -22,9 +22,9 @@ exports.find = function (req, res, next) {
             user: {
                 id: req.user.id,
                 name: req.user.username,
-                groups: req.user.groups,
+                groups: req.user.groups
             },
-            isVerified: false,
+            isVerified: false
         };
         req.app.db.models.Session.findOneAndUpdate({sessionID: req.sessionID}, sessUpdate, {new: true}, function (err, doc) {
             if (err) {
@@ -36,8 +36,8 @@ exports.find = function (req, res, next) {
                     user: {
                         id: req.user.id,
                         name: req.user.username,
-                        groups: req.user.groups,
-                    },
+                        groups: req.user.groups
+                    }
                 };
                 req.app.db.models.Session.makeNewSession(sessInfo, function (err, newDoc) {
                     if (err) {
@@ -152,7 +152,7 @@ exports.find = function (req, res, next) {
             sort: req.query.sort
         }, function (err, results) {
             if (err) {
-                return next(err);
+                return callback(err);
             }
             outcome.results = results;
             if (req.xhr) {
@@ -173,10 +173,12 @@ exports.find = function (req, res, next) {
             bpus: escape(JSON.stringify(outcome.bpus)),
             session: escape(JSON.stringify(outcome.session)),
             joinQueueDataObj: escape(JSON.stringify(outcome.joinQueueDataObj)),
-            eugs: outcome.bpuJadeObjects,
+            eugs: outcome.bpuJadeObjects
         };
+
         return callback(null);
     };
+
     //Build Init Series
     var initSeriesFuncs = [];
     initSeriesFuncs.push(getSession);
@@ -185,6 +187,7 @@ exports.find = function (req, res, next) {
     initSeriesFuncs.push(checkBpusAgainstLiveSessionExperiment);
     initSeriesFuncs.push(getExperimentData);
     initSeriesFuncs.push(buildClientSideData);
+
     //Run Init Series
     async.series(initSeriesFuncs, function (err) {
         if (err) {
@@ -199,7 +202,7 @@ var _createXLSXFile = function (userExp, expId, trackIdStr, res, cb) {
     temp.mkdir('trackdata', function (err, path) {
         if (err) {
             console.log('Failed to create temporary mkdir');
-            return cb('Failed to ceate temporary mkdir');
+            return cb('Failed to create temporary mkdir');
         }
         else {
             var dest = path + '/' + expId + '_tracks.xlsx';
@@ -222,7 +225,6 @@ var _createXLSXFile = function (userExp, expId, trackIdStr, res, cb) {
 };
 
 exports.downloadTrack = function (req, res, next) {
-
     console.log('GET: ' + req);
 
     var expId = req.params.id;

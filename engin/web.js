@@ -1,11 +1,18 @@
 var Client = require('node-rest-client').Client;
-var http = require('http');
 var io = require('socket.io-client');
+var http = require('http');
+var fs = require('fs');
+
+var app = app || {};
+app.experiments = [];
+app.downloads = [];
 
 var client = new Client();
 
-var domain = "http://localhost:5000";
+var domain = "http://biotic.stanford.edu";
 // var domain = "http://euglena.stanford.edu";
+
+var downloadServer = domain + "/account/joinlabwithdata/downloadFile/";
 
 var sessionID = null;
 
@@ -22,6 +29,8 @@ var user = null;
 var token = null;
 
 function register() {
+    console.info('registering user...');
+
     var args = {
         data: {
             username: 'test2',
@@ -34,18 +43,21 @@ function register() {
     client.post(domain + "/api/auth/register/ ", args, function (data, response) {
         // parsed response body as js object
         console.log(data);
+
+        // { success: true,
+        //   errors: [],
+        //   errfor: {},
+        //   user:
+        //    { id: '581129364999d6fa1a7042f9',
+        //      username: 'test2',
+        //      email: 'test2@noname.org',
+        //      timeCreated: '2016-10-26T22:07:50.947Z'
+        //    }
+        // }
     });
 }
 
 // register();
-// { success: true,
-//   errors: [],
-//   errfor: {},
-//   user:
-//    { id: '581129364999d6fa1a7042f9',
-//      username: 'test2',
-//      email: 'test2@noname.org',
-//      timeCreated: '2016-10-26T22:07:50.947Z'} }
 
 
 function getBioUnits() {
@@ -182,7 +194,7 @@ function socketSetup(sessionID, user, queue) {
                 clientCreationDate: new Date(),
                 group_experimentType: "text",
                 runTime: 60000,
-                tag: "alan",  // user name or any tag
+                tag: "engin",  // user name or any tag
                 userUrl: "/account/joinlabwithdata/"
             }
 
@@ -273,9 +285,9 @@ function login() {
             }
         }
 
-        user = data.user;
-        token = data.token;
-        queue = data.queue;
+        var user = data.user;
+        var token = data.token;
+        var queue = data.queue;
 
 
         socketSetup(sessionID, user, queue);
@@ -323,6 +335,7 @@ function login() {
 }
 
 login();
+
 // { success: true,
 //  errors: [],
 //  errfor: {},
