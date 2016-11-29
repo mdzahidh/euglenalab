@@ -88,6 +88,11 @@ app.use(helmet.frameguard('allow-from', 'gateway.golabz.eu'));  //browser consol
 
 //response locals
 app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
     res.cookie('_csrfToken', req.csrfToken());
     res.locals.user = {};
     res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();

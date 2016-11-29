@@ -126,7 +126,7 @@ socket.on('update', function (bpuList, experimentList, queue) {
 
                     // download all experiment files
                     // use any particular file based on requirement
-                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/", bpu.liveBpuExperiment.id + ".json" + "/");
+                    socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + bpu.liveBpuExperiment.id + ".json/", bpu.liveBpuExperiment.id + ".json");
                     socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "lightdata.json" + "/", "lightdata.json");
                     socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "movie.mp4" + "/", "movie.mp4");
                     socket.download(downloadServer + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.mp4" + "/", "tracks_thresholded_10.mp4");
