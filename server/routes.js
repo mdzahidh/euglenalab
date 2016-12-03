@@ -211,6 +211,7 @@ exports = module.exports = function(app, passport) {
 
   // let download happen without authentication
   app.get('/account/joinlabwithdata/downloadFile/:id/:filename/', require('./views/account/joinlabwithdata/index').downloadFile);
+  app.get('/account/experiment/:id/', require('./views/account/joinlabwithdata/index').read);
 
   //account
   app.all('/account*', ensureAuthenticated);
