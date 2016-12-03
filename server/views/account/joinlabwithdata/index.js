@@ -388,9 +388,20 @@ exports.read = function (req, res, next) {
         if (req.xhr) {
             res.send(userExp);
         }
+
         else {
             res.render('account/joinlabwithdata/details', {data: {record: escape(JSON.stringify(userExp))}});
         }
+    });
+};
+
+exports.status = function (req, res, next) {
+    req.app.db.models.BpuExperiment.findById(req.params.id).populate('roles.admin', 'name.full').populate('roles.account', 'name.full').exec(function (err, userExp) {
+        if (err) {
+            return next(err);
+        }
+
+        res.send(userExp);
     });
 };
 
