@@ -46,8 +46,13 @@ var session = {
 
 var statusList = {
     'created': 'Queued',
+    'submited': 'Queued',
+    'queued': 'Queued',
     'addingtobpu': 'Running',
+    'running': 'Running',
     'servercleared': 'Processing',
+    'processing': 'Processing',
+    'failed': 'Failed',
     'finished': 'Complete'
 };
 
@@ -107,7 +112,9 @@ socket.on(router.connect, function () {
                     }];
 
                     // trigger an experiment using text mode
-                    api.prepareExperiment(inputFiles, app.auth, queueObj);
+                    api.prepareExperiment(inputFiles, app.auth, queueObj, function (experimentId) {
+                        api.onSubmitted(experimentId);
+                    });
                 }
             });
         }
@@ -121,9 +128,7 @@ socket.on('update', function (bpuList, experimentList, queue) {
         return bpu.isOn && bpu.bpuStatus == "running" && bpu.liveBpuExperiment.username == user.name && _.indexOf(app.experiments, bpu.liveBpuExperiment.id) >= 0;
     });
 
-    console.log(queue);
-
-    var downloadAt = webserver + web_router.download;
+    // console.log(queue);/
 
     if (runningBPUs && runningBPUs.length > 0) {
         runningBPUs.forEach(function (bpu) {
@@ -131,62 +136,72 @@ socket.on('update', function (bpuList, experimentList, queue) {
             if (bpu.liveBpuExperiment.bc_timeLeft < 2000 && _.indexOf(app.downloads, bpu.liveBpuExperiment.id) < 0) {
 
                 // cache experiment id once it is complete
-                app.downloads.push(bpu.liveBpuExperiment.id);
-
-                console.log("processing experiment...");
-
-                setTimeout(function () {
-                    console.log("downloading experiment...");
-
-                    // download all experiment files
-                    // use any particular file based on requirement
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + bpu.liveBpuExperiment.id + ".json/", bpu.liveBpuExperiment.id + ".json");
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "lightdata.json" + "/", "lightdata.json");
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "movie.mp4" + "/", "movie.mp4");
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.mp4" + "/", "tracks_thresholded_10.mp4");
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "lightdata_meta.json" + "/", "lightdata_meta.json");
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "tracks.json" + "/", "tracks.json");
-                    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.ogg" + "/", "tracks_thresholded_10.ogg");
-                }, 30000); // processing takes about 15-20 seconds
-
+                api.onProcessing(bpu.liveBpuExperiment.id, bpu);
             }
-
         });
     }
 
-    app.experiments.forEach(function(experimentId){
-        api.status(experimentId, function (response) {
-            var str = '';
+    api.onUpdate(bpuList);
 
-            response.setEncoding("utf8");
-
-            response.on('data', function (chunk) {
-                str += chunk;
-            });
-
-            response.on('end', function () {
-                try {
-                    var body = JSON.parse(str);
-
-                    //get bpu which might be running this experiment
-                    var currentBPU = _.find(bpuList, function (bpu) {
-                        return bpu.isOn && bpu.bpuStatus == "running" && bpu.liveBpuExperiment.id == experimentId && _.indexOf(app.experiments, experimentId) >= 0;
-                    });
-
-                    console.log(api.experimentStatus(experimentId, statusList[body.exp_status], currentBPU))
-                } catch (err) {
-                    console.error(err);
-                    console.error("Error:", "Experiment " + experimentId + " doesn't exist!");
-                }
-            });
-
-        });
-    })
 });
 
+api.onUpdate = function(bpuList){
+    app.experiments.forEach(function (experimentId) {
+        api.status(experimentId, bpuList, function (error, response) {
+            if (error == null) {
+                console.log(response);
+            } else {
+                console.error(error);
+            }
+        });
+    })
+};
+
+api.onSubmitted = function(experimentId){
+    app.experiments.push(experimentId);
+};
+
+api.onProcessing = function(experimentId, bpu){
+    console.log("processing experiment...");
+
+    // wait for processing to complete an then download the files
+    setTimeout(function () {
+        api.onFinished(bpu);
+    }, 30000); // processing takes about 15-20 seconds
+
+};
+
+api.onFinished = function(bpu){
+    console.log("downloading experiment...");
+    var downloadAt = webserver + web_router.download;
+
+    // download all experiment files
+    // use any particular file based on requirement
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + bpu.liveBpuExperiment.id + ".json/", bpu.liveBpuExperiment.id + ".json", function (error, status) {
+
+    });
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "lightdata.json" + "/", "lightdata.json", function (error, status) {
+
+    });
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "movie.mp4" + "/", "movie.mp4", function (error, status) {
+
+    });
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.mp4" + "/", "tracks_thresholded_10.mp4", function (error, status) {
+
+    });
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "lightdata_meta.json" + "/", "lightdata_meta.json", function (error, status) {
+
+    });
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "tracks.json" + "/", "tracks.json", function (error, status) {
+
+    });
+    api.download(downloadAt + bpu.liveBpuExperiment.id + "/" + "tracks_thresholded_10.ogg" + "/", "tracks_thresholded_10.ogg", function (error, status) {
+
+    });
+};
 
 // setting up experiment and pushing to queue
-api.prepareExperiment = function (inputFiles, auth, queueObj) {
+api.prepareExperiment = function (inputFiles, auth, queueObj, callback) {
     var queue = [];
 
     inputFiles.forEach(function (fileObj) {
@@ -237,14 +252,13 @@ api.prepareExperiment = function (inputFiles, auth, queueObj) {
                 // this data can be persisted in database to query experiments later.
                 // for now it is all in-memory based
                 // console.log(res);
-                app.experiments.push(res[0]._id);
+                callback(res[0]._id);
             }
         });
     }
 };
 
-
-api.download = function (url, dest) {
+api.download = function (url, dest, callback) {
     var file = fs.createWriteStream(dest);
 
     var request = http.get(url, function (response) {
@@ -253,25 +267,50 @@ api.download = function (url, dest) {
         file.on('finish', function () {
             console.log("download complete");
             file.close(); // close() is async, call callback after close completes.
+            callback(null, "success");
         });
 
         file.on('error', function (err) {
             fs.unlink(dest); // Delete the file async. (But we don't check the result)
 
-            console.log(err.message);
+            callback(err.message);
         });
     });
 };
 
-api.status = function (experimentId, callback) {
+api.status = function (experimentId, bpuList, callback) {
     var url = webserver + "/account/experiment/" + experimentId + "/";
 
     http.get(url, function (response) {
-        callback(response);
+        var str = '';
+
+        response.setEncoding("utf8");
+
+        response.on('data', function (chunk) {
+            str += chunk;
+        });
+
+        response.on('end', function () {
+            try {
+                var body = JSON.parse(str);
+
+                //get bpu which might be running this experiment
+                var currentBPU = _.find(bpuList, function (bpu) {
+                    return bpu.isOn && bpu.bpuStatus == "running" && bpu.liveBpuExperiment.id == experimentId && _.indexOf(app.experiments, experimentId) >= 0;
+                });
+
+                callback(null, _experimentStatus(experimentId, statusList[body.exp_status], currentBPU))
+            } catch (err) {
+                console.error(err);
+                callback("Experiment " + experimentId + " doesn't exist!");
+            }
+        });
     })
+
+
 };
 
-api.experimentStatus = function (experimentId, status, bpu) {
+_experimentStatus = function (experimentId, status, bpu) {
     var statement = '';
 
     switch (status) {
@@ -279,9 +318,9 @@ api.experimentStatus = function (experimentId, status, bpu) {
             statement = "Experiment " + experimentId + " is in queue";
             break;
         case 'Running':
-            if(bpu!=null) {
+            if (bpu != null) {
                 statement = "Experiment " + experimentId + " running on " + bpu.name + " : " + bpu.liveBpuExperiment.bc_timeLeft / 1000 + " seconds left";
-            }else{
+            } else {
                 statement = "Experiment " + experimentId + " is pending processing";
             }
             break;
@@ -291,13 +330,12 @@ api.experimentStatus = function (experimentId, status, bpu) {
         case 'Complete':
             statement = "Experiment " + experimentId + " is complete and ready to download";
             break;
+        case 'Failed':
+            statement = "Experiment " + experimentId + " has failed";
+            break;
         default:
             break;
     }
 
     return statement;
 };
-
-
-
-
