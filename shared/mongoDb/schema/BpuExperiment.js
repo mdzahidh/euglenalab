@@ -127,7 +127,7 @@ exports=module.exports=function(app, mongoose) {
         var evt=exp.exp_eventsToRun[ind];
         if(evt!==null && evt!==undefined) {
        
-          var err=checkNum(evt.time, 0, 5*60*1000);
+          var err=checkNum(evt.time, 0, 10*60*1000);
           
           if(err===null) {err=checkNum(evt.topValue, 0, 100);
           } else {returnObj.validationErr='time:'+err; break;}

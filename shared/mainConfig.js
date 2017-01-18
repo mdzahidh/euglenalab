@@ -64,10 +64,10 @@ var exports=module.exports={
   clearUserListOnStart:false,
   maxUsersInList:500,
   activeSocketsExpSubTimeout:60*5*1000,
-  maxTextFileTime:60*5*1000,
+  maxTextFileTime:60*10*1000,
   minTextFileTime:4*1000,
   maxTextTotalSubmits:4,
-  maxTextTotalSumbitTime:60*20*1000,
+  maxTextTotalSumbitTime:60*40*1000,
   liveMuseumUserLabTime:g_liveMuseumTime,
   liveUserLabTime:g_liveLabTime,
 
