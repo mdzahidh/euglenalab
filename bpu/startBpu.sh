@@ -1,3 +1,4 @@
 #!/bin/bash
 git fetch && git pull
-node app.js
+./initLeds.sh
+forever app.js
