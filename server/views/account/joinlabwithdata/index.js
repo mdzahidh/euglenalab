@@ -323,10 +323,34 @@ var _runRepackaging=function(userExp, callback) {
       } else {return cb_fn(null);}
     });
   };
+
+  var zipFolderToServerPublicMedia=function(cb_fn) {
+    //untar and move
+    var src=outcome.srcPath;
+    var dest=outcome.destPath+'/'+outcome.filename+'.zip';
+    //var dest=outcome.filename+'.tar.gz';
+    var cmdStr='zip -rj '+dest+ ' ' +src;
+    var child=exec(cmdStr, function (error, stdout, stderr) {
+      if(error!==null) {return cb_fn('zipFolderToServerPublicMedia exec error ' + stderr);
+      } else if(stderr) {
+        //it may exist
+        fs.stat(dest, function(err, stat) {
+          if(err) {
+            return cb_fn('zipFolderToServerPublicMedia fs.stat ' + stderr);
+          } else {
+            return cb_fn(null);
+          }
+        });
+      } else if(stdout) {return cb_fn(null);
+      } else {return cb_fn(null);}
+    });
+  };
+
   //Init Run Funcs
   var funcs=[
     checkProcessingFolderPath,
-    tarFolderToServerPublicMedia,
+    //tarFolderToServerPublicMedia,
+    zipFolderToServerPublicMedia,
   ];
   //Start Run Init
   async.series(funcs, function(err) {
@@ -334,7 +358,8 @@ var _runRepackaging=function(userExp, callback) {
     if(err) {
       callback(err);
     } else {
-      callback(null, outcome.destPath+'/'+outcome.filename+'.tar.gz', outcome.filename+'.tar.gz');
+      //callback(null, outcome.destPath+'/'+outcome.filename+'.tar.gz', outcome.filename+'.tar.gz');
+      callback(null, outcome.destPath+'/'+outcome.filename+'.zip', outcome.filename+'.zip');
     }
   });
 };
