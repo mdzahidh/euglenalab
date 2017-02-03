@@ -15,9 +15,20 @@ import (
 const WORKERS int = 8
 const MAXRETRIES int = 3
 
-type Experiment struct {
-	Id bson.ObjectId `bson:"_id,omitempty"`
+type ExpUser struct {
+	Id     bson.ObjectId `bson:"id,omitempty"`
+	Groups []string      `bson:"groups"`
+	Name   string        `bson:"name"`
 }
+type Experiment struct {
+	Id        bson.ObjectId `bson:"_id,omitempty"`
+	Startpath string        `bson:"proc_startPath"`
+	EndPath   string        `bson:"proc_endPath" json:"proc_endPath`
+	Status    string        `bson:"exp_status"`
+	User	  ExpUser	`bson:"user"`
+}
+
+
 
 func consume(id int, jobs <-chan Experiment) {
 	for {
@@ -49,7 +60,7 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 		}
 	}
 
-	PROJECTION := bson.M{"proc_startPath": 1, "exp_status": 1, "exp_attempts": 1}
+	PROJECTION := bson.M{"proc_startPath": 1, "exp_status": 1, "exp_attempts": 1, "proc_endPath": 1, "user": 1}
 
 	var expList []Experiment
 	err := c.Find(query).
@@ -67,14 +78,19 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 }
 
 func main() {
-	session, err := mgo.Dial("euglena.stanford.edu")
+	//mgo.SetDebug(true)
+	//var aLogger *log.Logger
+	//aLogger = log.New(os.Stderr, "", log.LstdFlags)
+	//mgo.SetLogger(aLogger)
+
+	session, err := mgo.Dial("localhost")
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
 	session.SetMode(mgo.Monotonic, true)
-	c := session.DB("master").C("bpuexperiments")
+	c := session.DB("test").C("bpuexperiments")
 
 	expJobChannel := make(chan Experiment)
 	for w := 0; w < WORKERS; w++ {
