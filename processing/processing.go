@@ -60,7 +60,7 @@ import (
 )
 
 const (
-        WORKERS int = 8
+        WORKERS int = 4
         MAXRETRIES int = 3
         ROOT string = "/Users/zhossain/work/euglenalab/processing/data/"
         BPU_PATH = ROOT + "bpuEuglenaData_forMounting/"
