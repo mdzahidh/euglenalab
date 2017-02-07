@@ -41,38 +41,40 @@ New Field Added in exp_metaData (existing fields are not changed)
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"io/ioutil"
+	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
-	"strings"
-	"time"
-        "os/exec"
-	"strconv"
 	"regexp"
-	"io/ioutil"
-	"encoding/json"
-	"math"
+	"strconv"
+	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 )
 
 const (
-        WORKERS int = 4
-        MAXRETRIES int = 3
-        ROOT string = "/Users/zhossain/work/euglenalab/processing/data/"
-        BPU_PATH = ROOT + "bpuEuglenaData_forMounting/"
-        FINAL_PATH = ROOT + "finalBpuData/"
-        MINIMUM_JPG_FILES = 20
-        DATABASE = "test"
-        COLLECTION = "bpuexperiments"
-	BPUCOLLECTION = "bpus"
-        MOVIEEXEC = "./tools/euglenamovie"
-        MOVIE_POST_PROCESS = "./tools/tracks.sh"
-	MOVE_DATA = "./tools/movedata.sh"
-	PYTHON_SCRIPT_ROOT = "../shared/python-scripts/"
+	WORKERS            int    = 4
+	MAXRETRIES         int    = 3
+	ROOT               string = "/home/mserver/"
+	BPU_PATH                  = ROOT + "bpuEuglenaData_forMounting/"
+	FINAL_PATH                = ROOT + "finalBpuData/"
+	MINIMUM_JPG_FILES         = 20
+	MONGODB_URI        string = "localhost"
+	DATABASE                  = "master"
+	COLLECTION                = "bpuexperiments"
+	BPUCOLLECTION             = "bpus"
+	MOVIEEXEC                 = "./tools/euglenamovie"
+	MOVIE_POST_PROCESS        = "./tools/tracks.sh"
+	MOVE_DATA                 = "./tools/movedata.sh"
+	PYTHON_SCRIPT_ROOT        = "../shared/python-scripts/"
 )
 
 type ExpUser struct {
@@ -90,13 +92,13 @@ type ExpMetaData struct {
 	//LightDataPath       string `bson:"lightDataPath"`
 	//LightDataSoapPath   string `bson:"lightDataSoapPath"`
 	//SaveTime            string `bson:"saveTime"`
-	NumFrames           int32  `bson:"numFrames"`
+	NumFrames int32 `bson:"numFrames"`
 	//UserURL             string `bson:"userUrl"`
 	//ClientCreationDate  string `bson:"clientCreationDate"`
 	//GroupExperimentType string `bson:"group_experimentType"`
 	//RunTime             int32  `bson:"runTime"`
 	//Tag                 string `bson:"tag"`
-	Magnification       int32  `bson:"magnification"`
+	Magnification int32 `bson:"magnification"`
 }
 
 type Experiment struct {
@@ -118,25 +120,25 @@ type Experiment struct {
 }
 
 type Scores struct {
-	AccPopulation	float64 `bson:"scripterPopulation"`
-	AccActivity     float64 `bson:"scripterActivity"`
-	AccResponse     float64 `bson:"scripterResponse"`
+	AccPopulation float64 `bson:"scripterPopulation"`
+	AccActivity   float64 `bson:"scripterActivity"`
+	AccResponse   float64 `bson:"scripterResponse"`
 
-	Population	float64 `bson:"population"`
-	Activity     	float64 `bson:"activity"`
-	Response     	float64 `bson:"response"`
+	Population float64 `bson:"population"`
+	Activity   float64 `bson:"activity"`
+	Response   float64 `bson:"response"`
 
-	PopulationDate	float64 `bson:"scripterPopulationDate"`
-	ActivityDate    float64 `bson:"scripterActivityDate"`
-	ResponseDate    float64 `bson:"scripterResponseDate"`
+	PopulationDate float64 `bson:"scripterPopulationDate"`
+	ActivityDate   float64 `bson:"scripterActivityDate"`
+	ResponseDate   float64 `bson:"scripterResponseDate"`
 
-	WindowLambdaMs	int32	`bson:"WindowLambdaMs"`
+	WindowLambdaMs int32 `bson:"WindowLambdaMs"`
 }
 
 type BPU struct {
-	Id		bson.ObjectId	`bson:"_id,omitempty"`
-	Name		string		`bson:"name"`
-	Scores		Scores		`bson:"performanceScores"`
+	Id     bson.ObjectId `bson:"_id,omitempty"`
+	Name   string        `bson:"name"`
+	Scores Scores        `bson:"performanceScores"`
 }
 
 type DataFolderInfo struct {
@@ -145,7 +147,8 @@ type DataFolderInfo struct {
 	jsonData    map[string]interface{}
 }
 
-var g_numRegularExpression  *regexp.Regexp
+var g_numRegularExpression *regexp.Regexp
+var g_processingThreads int32
 
 func getQueryProjection(data interface{}) bson.M {
 	//exp := Experiment{}
@@ -193,31 +196,31 @@ func getDataFolderInfo(exp *Experiment) (DataFolderInfo, error) {
 	if err != nil {
 		return DataFolderInfo{}, errors.New("getDataFolderInfo:loadJSONFile:" + err.Error())
 	}
-	return DataFolderInfo{srcFolder: srcFolder, numJPGFiles: len(jpgFiles), jsonData:jsonMap}, nil
+	return DataFolderInfo{srcFolder: srcFolder, numJPGFiles: len(jpgFiles), jsonData: jsonMap}, nil
 }
 
 func compileMovie(wid int, exp *Experiment) error {
-        fmt.Printf("Worker %d, Experiment ID: %s - Compiling Movie\n", wid, exp.Id.Hex())
-        _, err := exec.Command(MOVIEEXEC,"-i",exp.ProcStartPath).Output()
+	fmt.Printf("Worker %d, Experiment ID: %s - Compiling Movie\n", wid, exp.Id.Hex())
+	_, err := exec.Command(MOVIEEXEC, "-i", exp.ProcStartPath).Output()
 	if err != nil {
 		return errors.New("compileMovie:" + err.Error())
 	}
-        return err
+	return err
 }
 
 func postProcessMovie(wid int, exp *Experiment) error {
-        fmt.Printf("Worker %d, Experiment ID: %s - Postprocessing Movie\n", wid, exp.Id.Hex())
-        _,err := exec.Command("/bin/bash", MOVIE_POST_PROCESS, exp.ProcStartPath).Output()
+	fmt.Printf("Worker %d, Experiment ID: %s - Postprocessing Movie\n", wid, exp.Id.Hex())
+	_, err := exec.Command("/bin/bash", MOVIE_POST_PROCESS, exp.ProcStartPath).Output()
 	if err != nil {
 		return errors.New("postProcessMovie:" + err.Error())
 	}
-        return err
+	return err
 }
 
 func moveToFinalLocation(wid int, exp *Experiment) error {
 	fmt.Printf("Worker %d, Experiment ID: %s - Removing captured images\n", wid, exp.Id.Hex())
 	exp.ProcEndPath = FINAL_PATH + exp.Id.Hex()
-	_,err := exec.Command("/bin/bash", MOVE_DATA, exp.ProcStartPath, FINAL_PATH, exp.Id.Hex()).Output()
+	_, err := exec.Command("/bin/bash", MOVE_DATA, exp.ProcStartPath, FINAL_PATH, exp.Id.Hex()).Output()
 	if err != nil {
 		return errors.New("moveToFinalLocation:" + err.Error())
 	}
@@ -230,21 +233,21 @@ func loadJSONFile(filename string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	jsonData := make(map[string]interface{})
-	json.Unmarshal(raw,&jsonData)
+	json.Unmarshal(raw, &jsonData)
 	return jsonData, nil
 }
 
-func prepareBPUpdateFields( bpu *BPU ) bson.M {
+func prepareBPUpdateFields(bpu *BPU) bson.M {
 	selectedFields := bson.M{
-		"performanceScores.scripterPopulation" 	: bpu.Scores.AccPopulation,
-		"performanceScores.scripterActivity"	: bpu.Scores.AccActivity,
-		"performanceScores.scripterResponse"	: bpu.Scores.AccResponse,
-		"performanceScores.population"		  : bpu.Scores.Population,
-		"performanceScores.activity"              : bpu.Scores.Activity,
-		"performanceScores.response"		: bpu.Scores.Response,
+		"performanceScores.scripterPopulation":     bpu.Scores.AccPopulation,
+		"performanceScores.scripterActivity":       bpu.Scores.AccActivity,
+		"performanceScores.scripterResponse":       bpu.Scores.AccResponse,
+		"performanceScores.population":             bpu.Scores.Population,
+		"performanceScores.activity":               bpu.Scores.Activity,
+		"performanceScores.response":               bpu.Scores.Response,
 		"performanceScores.scripterPopulationDate": bpu.Scores.PopulationDate,
-		"performanceScores.scripterActivityDate"  : bpu.Scores.ActivityDate,
-		"performanceScores.scripterResponseDate"  : bpu.Scores.ResponseDate,
+		"performanceScores.scripterActivityDate":   bpu.Scores.ActivityDate,
+		"performanceScores.scripterResponseDate":   bpu.Scores.ResponseDate,
 	}
 	return selectedFields
 }
@@ -254,10 +257,10 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 	scripterName := exp.User.Name
 	varName := scripterName[8:]
 
-	fmt.Printf("Worker %d, Experiment ID: %s - Processing Scripter (%s) for BPU (%s) \n",wid,exp.Id.Hex(), varName, exp.ExpBPUName )
+	fmt.Printf("Worker %d, Experiment ID: %s - Processing Scripter (%s) for BPU (%s) \n", wid, exp.Id.Hex(), varName, exp.ExpBPUName)
 
 	pythonScript := PYTHON_SCRIPT_ROOT + scripterName + ".py"
-	out,err := exec.Command("python",pythonScript,exp.ProcStartPath,strconv.Itoa(int(exp.ExpMetaData.Magnification))).Output()
+	out, err := exec.Command("python", pythonScript, exp.ProcStartPath, strconv.Itoa(int(exp.ExpMetaData.Magnification))).Output()
 	if err != nil {
 		return errors.New("processScripter:" + scripterName + ":" + err.Error())
 	}
@@ -266,7 +269,7 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 		return errors.New("processScripter:" + scripterName + ":" + "Script output " + stat + " cannot be converted to number")
 	}
 
-	currStat,err := strconv.ParseFloat(stat,64)
+	currStat, err := strconv.ParseFloat(stat, 64)
 
 	if err != nil {
 		return errors.New("processScripter:" + scripterName + ":" + err.Error())
@@ -279,11 +282,10 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 
 	var bpu BPU
 	queryProjection := getQueryProjection(bpu)
-	collection.Find(bson.M{"name":exp.ExpBPUName}).Select(queryProjection).One(&bpu)
+	collection.Find(bson.M{"name": exp.ExpBPUName}).Select(queryProjection).One(&bpu)
 
 	scoreValue := reflect.ValueOf(&bpu.Scores)
 	scoreValue.Elem().FieldByName(varName).SetFloat(currStat)
-
 
 	var expTime float64
 
@@ -298,42 +300,42 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 	oldTime := scoreValue.Elem().FieldByName(varName + "Date").Float()
 	timeDiff := expTime - oldTime
 
-	if( timeDiff >= 0 ) {
-		weight := math.Pow(2, - (timeDiff / lambda))
-		newValue := (oldValue * weight + currStat) / (weight + 1.0)
+	if timeDiff >= 0 {
+		weight := math.Pow(2, -(timeDiff / lambda))
+		newValue := (oldValue*weight + currStat) / (weight + 1.0)
 
 		scoreValue.Elem().FieldByName("Acc" + varName).SetFloat(newValue)
 		scoreValue.Elem().FieldByName(varName + "Date").SetFloat(expTime)
 
 		fmt.Printf("Worker %d, Experiment ID: %s - Scripter (%s) Updating BPU (%s) Database (oldValue:%f,curValue:%f,cummValue:%f)\n",
-			   wid, exp.Id.Hex(), varName, bpu.Name, oldValue, currStat, newValue)
+			wid, exp.Id.Hex(), varName, bpu.Name, oldValue, currStat, newValue)
 
-		selectedFields := prepareBPUpdateFields( &bpu )
-		err = collection.UpdateId(bpu.Id,bson.M{"$set":selectedFields})
-	} else{
+		selectedFields := prepareBPUpdateFields(&bpu)
+		err = collection.UpdateId(bpu.Id, bson.M{"$set": selectedFields})
+	} else {
 		return errors.New("processScripter:" + scripterName + ":" + "timeDiff < 0 !")
 	}
 	return err
 }
 
-func prepareDBUpdateFields( exp *Experiment ) bson.M {
-        selectedFields := bson.M{
-                "exp_processingStartTime" : exp.ExpProcessingStartTime,
-                "exp_processingEndTime"   : exp.ExpProcessingEndTime,
-                "exp_runStartTime"        : exp.ExpRunStartTime,
-                "exp_runEndTime"          : exp.ExpRunEndTime,
-                "proc_startPath"          : exp.ProcStartPath, // We dont need this, but it provides a small data for debugging :)
-                "proc_endPath"            : exp.ProcEndPath,
-                "proc_err"                : exp.ProcErr,
-                "exp_status"              : exp.Status,
-                "proc_attempts"           : exp.ProcAttempts,
-                "exp_metaData.numFrames"  : exp.ExpMetaData.NumFrames,
-        }
-        return selectedFields
+func prepareDBUpdateFields(exp *Experiment) bson.M {
+	selectedFields := bson.M{
+		"exp_processingStartTime": exp.ExpProcessingStartTime,
+		"exp_processingEndTime":   exp.ExpProcessingEndTime,
+		"exp_runStartTime":        exp.ExpRunStartTime,
+		"exp_runEndTime":          exp.ExpRunEndTime,
+		"proc_startPath":          exp.ProcStartPath, // We dont need this, but it provides a small data for debugging :)
+		"proc_endPath":            exp.ProcEndPath,
+		"proc_err":                exp.ProcErr,
+		"exp_status":              exp.Status,
+		"proc_attempts":           exp.ProcAttempts,
+		"exp_metaData.numFrames":  exp.ExpMetaData.NumFrames,
+	}
+	return selectedFields
 }
 
 func makeTimeStampMillisec(t time.Time) int64 {
-        return t.UnixNano() / int64(time.Millisecond)
+	return t.UnixNano() / int64(time.Millisecond)
 }
 
 func isScripter(exp *Experiment) bool {
@@ -344,7 +346,7 @@ func isScripter(exp *Experiment) bool {
 	return false
 }
 
-func fixBPUName(exp *Experiment){
+func fixBPUName(exp *Experiment) {
 	if len(exp.ExpBPUName) == 0 {
 		exp.ExpBPUName = exp.LastResort.BPUName
 	}
@@ -354,34 +356,34 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 
 	fixBPUName(exp)
 
-        exp.ExpProcessingStartTime = float64(makeTimeStampMillisec( time.Now() ))
+	exp.ExpProcessingStartTime = float64(makeTimeStampMillisec(time.Now()))
 
-        // install a cleanup function
+	// install a cleanup function
 	defer func() {
 		// Based on error do something.
 		var finalStatement string
 		if err != nil {
-			fmt.Printf("Worker %d, Error: Experiment ID: %s, Description: %s\n", wid,exp.Id.Hex(), err.Error())
+			fmt.Printf("Worker %d, Error: Experiment ID: %s, Description: %s\n", wid, exp.Id.Hex(), err.Error())
 			exp.ProcErr = err.Error()
 			finalStatement = "FAILED"
 		} else {
 			exp.ProcErr = ""
-                        exp.Status = "finished"
+			exp.Status = "finished"
 			finalStatement = "SUCCESS"
 		}
 		fmt.Printf("Worker %d, Experiment ID: %s - Updating Database\n", wid, exp.Id.Hex())
 		sessionCopy := session.Copy()
-                defer func() {
-                        sessionCopy.Close()
-                        fmt.Printf("Worker %d, Experiment ID: %s - Processing Complete (%s)\n", wid, exp.Id.Hex(), finalStatement)
-                }()
+		defer func() {
+			sessionCopy.Close()
+			fmt.Printf("Worker %d, Experiment ID: %s - Processing Complete (%s)\n", wid, exp.Id.Hex(), finalStatement)
+		}()
 
-                exp.ExpProcessingEndTime = float64(makeTimeStampMillisec( time.Now() ))
-                exp.ProcAttempts++
+		exp.ExpProcessingEndTime = float64(makeTimeStampMillisec(time.Now()))
+		exp.ProcAttempts++
 
-                selectedFields := prepareDBUpdateFields(exp)
-                collection := session.DB(DATABASE).C(COLLECTION)
-                collection.UpdateId(exp.Id, bson.M{"$set":selectedFields})
+		selectedFields := prepareDBUpdateFields(exp)
+		collection := session.DB(DATABASE).C(COLLECTION)
+		collection.UpdateId(exp.Id, bson.M{"$set": selectedFields})
 
 	}()
 
@@ -400,13 +402,13 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 	exp.ProcStartPath = srcFolderInfo.srcFolder
 	exp.ExpMetaData.NumFrames = int32(srcFolderInfo.numJPGFiles)
 
-	if _,ok := srcFolderInfo.jsonData["exp_runStartTime"]; ok {
+	if _, ok := srcFolderInfo.jsonData["exp_runStartTime"]; ok {
 		exp.ExpRunStartTime = srcFolderInfo.jsonData["exp_runStartTime"].(float64)
 	} else {
 		exp.ExpRunStartTime = -1
 	}
 
-	if _,ok := srcFolderInfo.jsonData["exp_runEndTime"]; ok {
+	if _, ok := srcFolderInfo.jsonData["exp_runEndTime"]; ok {
 		exp.ExpRunEndTime = srcFolderInfo.jsonData["exp_runEndTime"].(float64)
 	} else {
 		exp.ExpRunEndTime = -1
@@ -415,7 +417,7 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 	isScripter := isScripter(exp)
 
 	var wg sync.WaitGroup
-	scripterErrorChannel := make(chan error,1)
+	scripterErrorChannel := make(chan error, 1)
 
 	if isScripter {
 		wg.Add(1)
@@ -426,75 +428,75 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 		}()
 	}
 
-        err = compileMovie(wid, exp)
-        if err != nil {
-                return
-        }
+	err = compileMovie(wid, exp)
+	if err != nil {
+		return
+	}
 
 	wg.Wait()
 	select {
-		case err = <-scripterErrorChannel:
-			if err != nil {
-				return
-			}
-		default:
+	case err = <-scripterErrorChannel:
+		if err != nil {
+			return
+		}
+	default:
 	}
 
-	if  !isScripter {
-		err = postProcessMovie(wid,exp)
+	if !isScripter {
+		err = postProcessMovie(wid, exp)
 		if err != nil {
-		        return
+			return
 		}
 	}
 
-	err = moveToFinalLocation(wid,exp)
+	err = moveToFinalLocation(wid, exp)
 	if err != nil {
-	        return
+		return
 	}
 }
 
 func consume(wid int, session *mgo.Session, jobs <-chan Experiment) {
 	for {
 		j := <-jobs
+		atomic.AddInt32(&g_processingThreads, 1)
 		processExperiment(wid, &j, session)
+		atomic.AddInt32(&g_processingThreads, -1)
 	}
 }
 
-
-
 func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
-	var debug bool = true
+	var debug bool = false
 	var query bson.M
 
 	if debug {
-		query = bson.M{"_id": bson.M{"$in":[]bson.ObjectId{
-									bson.ObjectIdHex("5893b30e0791958622f4b59a"),
-									bson.ObjectIdHex("58967285a25ea31347092fe7"),
-									bson.ObjectIdHex("58967414a25ea31347092fe8"),
-									bson.ObjectIdHex("588c280b0d339f983f7d6dd0"),
-									bson.ObjectIdHex("5893b0e80791958622f4b597"),
-									bson.ObjectIdHex("5892f701762325c36b023a2b"),
-									bson.ObjectIdHex("5893a2d705db105c1f51eff7"),
-									bson.ObjectIdHex("5893c5b33bec53d826502672"),
-                                                                   },
-                                            },
-                              }
+		query = bson.M{"_id": bson.M{"$in": []bson.ObjectId{
+			bson.ObjectIdHex("5893b30e0791958622f4b59a"),
+			bson.ObjectIdHex("58967285a25ea31347092fe7"),
+			bson.ObjectIdHex("58967414a25ea31347092fe8"),
+			bson.ObjectIdHex("588c280b0d339f983f7d6dd0"),
+			bson.ObjectIdHex("5893b0e80791958622f4b597"),
+			bson.ObjectIdHex("5892f701762325c36b023a2b"),
+			bson.ObjectIdHex("5893a2d705db105c1f51eff7"),
+			bson.ObjectIdHex("5893c5b33bec53d826502672"),
+		},
+		},
+		}
 
 	} else {
 		fromDate := bson.NewObjectIdWithTime(time.Now().AddDate(0, 0, -1))
 		toDate := bson.NewObjectIdWithTime(time.Now())
 
-		//query = bson.M{
-		//  "_id":               bson.M{"$gte": fromDate, "$lte": toDate},
-		//  "proc_doNotProcess": false,
-		//  "exp_status":        "servercleared",
-		//  "proc_attempts":     bson.M{"$lte": MAXRETRIES},
-		// }
-
 		query = bson.M{
 			"_id":               bson.M{"$gte": fromDate, "$lte": toDate},
 			"proc_doNotProcess": false,
+			"exp_status":        "servercleared",
+			"proc_attempts":     bson.M{"$lte": MAXRETRIES},
 		}
+
+		// query = bson.M{
+		// 	"_id":               bson.M{"$gte": fromDate, "$lte": toDate},
+		// 	"proc_doNotProcess": false,
+		// }
 	}
 
 	var expList []Experiment
@@ -503,15 +505,17 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 		Select(getQueryProjection(Experiment{})).
 		All(&expList)
 
-	fmt.Println("Total Experiments:", len(expList))
+	fmt.Printf("Experiments: New found: (%d), Waiting in the Queue(%d), being processed (%d)\n", len(expList), len(jobChannel), g_processingThreads)
 
 	if err != nil {
 		fmt.Println("Database Query error")
 	}
 
 	for _, e := range expList {
+		c.UpdateId(e.Id, bson.M{"$set": bson.M{"exp_status": "postprocessing"}})
 		jobChannel <- e
 	}
+
 }
 
 func main() {
@@ -522,7 +526,7 @@ func main() {
 
 	g_numRegularExpression = regexp.MustCompile(`^[-+]?[0-9]+\.[0-9]+|[0-9]+`)
 
-	session, err := mgo.Dial("localhost")
+	session, err := mgo.Dial(MONGODB_URI)
 	if err != nil {
 		panic(err)
 	}
@@ -532,16 +536,15 @@ func main() {
 	c := session.DB(DATABASE).C(COLLECTION)
 
 	done := make(chan bool)
-	expJobChannel := make(chan Experiment)
+	expJobChannel := make(chan Experiment, WORKERS*2)
 	for w := 0; w < WORKERS; w++ {
 		go consume(w, session, expJobChannel)
 	}
 
-	enqueueExperiments(c, expJobChannel)
-	//ticker := time.NewTicker(time.Second * 5)
-	//for t := range ticker.C {
-	//        fmt.Println("Enqueue at", t)
-	//        enqueueExperiments(c, expJobChannel)
-	//}
+	//enqueueExperiments(c, expJobChannel)
+	ticker := time.NewTicker(time.Second * 5)
+	for _ = range ticker.C {
+		enqueueExperiments(c, expJobChannel)
+	}
 	<-done
 }
