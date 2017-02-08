@@ -1,4 +1,4 @@
-sudo apt-get install -y autoconf libtool nasm yasm cmake
+sudo apt-get install -y autoconf libtool nasm yasm cmake libav-tools
 git submodule init
 git submodule update --recursive
 cd euglenatracer
