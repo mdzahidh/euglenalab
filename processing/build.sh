@@ -1,4 +1,6 @@
 sudo apt-get install -y autoconf libtool nasm yasm cmake libav-tools
+sudo pip install xlsxwriter
+
 git submodule init
 git submodule update --recursive
 cd euglenatracer
