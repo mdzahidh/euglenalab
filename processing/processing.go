@@ -61,14 +61,14 @@ import (
 )
 
 const (
-	WORKERS            int    = 4
+	WORKERS            int    = 5
 	MAXRETRIES         int    = 3
-	ROOT               string = "/Users/zhossain/work/euglenalab/processing/data/"
+	ROOT               string = "/home/mserver/"
 	BPU_PATH                  = ROOT + "bpuEuglenaData_forMounting/"
 	FINAL_PATH                = ROOT + "finalBpuData/"
 	MINIMUM_JPG_FILES         = 20
-	MONGODB_URI        string = "localhost"
-	DATABASE                  = "test"
+	MONGODB_URI        string = "192.168.1.100"
+	DATABASE                  = "master"
 	COLLECTION                = "bpuexperiments"
 	BPUCOLLECTION             = "bpus"
 	MOVIEEXEC                 = "./tools/euglenamovie"
@@ -165,7 +165,7 @@ type WorkerStatus struct {
 
 var g_numRegularExpression *regexp.Regexp
 var g_processingThreads int32
-var g_debug bool = true
+var g_debug bool = false
 var g_workStatuses []WorkerStatus
 var g_statusCond sync.Cond
 
@@ -586,10 +586,8 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 
 }
 
-func printStatuses() {
-	for {
-		g_statusCond.L.Lock()
-		g_statusCond.Wait()
+func printWorkerStatuses() {
+		
 		fmt.Println("\033c")
 		//fmt.Println("Hello")
 		for i := 0; i < WORKERS; i++ {
@@ -623,7 +621,14 @@ func printStatuses() {
 				}
 			}
 		}
+}
 
+func printStatuses() {
+	printWorkerStatuses()
+	for {
+		g_statusCond.L.Lock()
+		g_statusCond.Wait()
+		printWorkerStatuses()
 		g_statusCond.L.Unlock()
 	}
 }
