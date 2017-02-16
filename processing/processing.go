@@ -47,6 +47,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"log"
 	"math"
 	"os"
 	"os/exec"
@@ -168,6 +169,7 @@ var g_processingThreads int32
 var g_debug bool = false
 var g_workStatuses []WorkerStatus
 var g_statusCond sync.Cond
+var g_errLogger *log.Logger
 
 func (ws *WorkerStatus) finishJob() {
 	ws.prevStatus = ws.currentStatus
@@ -436,6 +438,7 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 			g_workStatuses[wid].currentStatus.message = finalStatement
 			if err != nil {
 				g_workStatuses[wid].currentStatus.err = err.Error()
+				g_errLogger.Printf("FAILED: Experiment: %s, User: %s, Error: %s", exp.Id.Hex(), exp.User.Name, err.Error())
 			} else {
 				g_workStatuses[wid].currentStatus.err = ""
 			}
@@ -587,40 +590,40 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 }
 
 func printWorkerStatuses() {
-		
-		fmt.Println("\033c")
-		//fmt.Println("Hello")
-		for i := 0; i < WORKERS; i++ {
 
-			fmt.Println("Worker: ", i)
+	fmt.Println("\033c")
+	//fmt.Println("Hello")
+	for i := 0; i < WORKERS; i++ {
 
-			currStatus := g_workStatuses[i].currentStatus
-			prevStatus := g_workStatuses[i].prevStatus
+		fmt.Println("Worker: ", i)
 
-			if len(currStatus.expId) == 0 {
-				fmt.Printf("\tCurrent Experiment: %s\n", "(IDLE)")
-			} else {
-				fmt.Printf("\tCurrent Experiment: %s (%s)\n", currStatus.expId, currStatus.bpuName)
-				fmt.Printf("\t\tStatus: %s\n", currStatus.message)
-				if len(currStatus.scripterName) > 0 {
-					fmt.Printf("\t\tAuto-Monitor: %s\n", currStatus.scripterName)
-				}
-			}
+		currStatus := g_workStatuses[i].currentStatus
+		prevStatus := g_workStatuses[i].prevStatus
 
-			if len(prevStatus.expId) > 0 {
-				fmt.Printf("\tPrevious Experiment: %s (%s)\n", prevStatus.expId, prevStatus.bpuName)
-				fmt.Printf("\t\tStatus: %s\n", prevStatus.message)
-				if len(prevStatus.scripterName) > 0 {
-					fmt.Printf("\t\tAuto-Monitor: %s\n", prevStatus.scripterName)
-					fmt.Printf("\t\tPoint Value: %f\n", prevStatus.scripterCurValue)
-					fmt.Printf("\t\tOld Value: %f\n", prevStatus.scripterOldValue)
-					fmt.Printf("\t\tNew Value: %f\n", prevStatus.scripterCummValue)
-				}
-				if len(prevStatus.err) > 0 {
-					fmt.Printf("\t\tError: %s\n", prevStatus.err)
-				}
+		if len(currStatus.expId) == 0 {
+			fmt.Printf("\tCurrent Experiment: %s\n", "(IDLE)")
+		} else {
+			fmt.Printf("\tCurrent Experiment: %s (%s)\n", currStatus.expId, currStatus.bpuName)
+			fmt.Printf("\t\tStatus: %s\n", currStatus.message)
+			if len(currStatus.scripterName) > 0 {
+				fmt.Printf("\t\tAuto-Monitor: %s\n", currStatus.scripterName)
 			}
 		}
+
+		if len(prevStatus.expId) > 0 {
+			fmt.Printf("\tPrevious Experiment: %s (%s)\n", prevStatus.expId, prevStatus.bpuName)
+			fmt.Printf("\t\tStatus: %s\n", prevStatus.message)
+			if len(prevStatus.scripterName) > 0 {
+				fmt.Printf("\t\tAuto-Monitor: %s\n", prevStatus.scripterName)
+				fmt.Printf("\t\tPoint Value: %f\n", prevStatus.scripterCurValue)
+				fmt.Printf("\t\tOld Value: %f\n", prevStatus.scripterOldValue)
+				fmt.Printf("\t\tNew Value: %f\n", prevStatus.scripterCummValue)
+			}
+			if len(prevStatus.err) > 0 {
+				fmt.Printf("\t\tError: %s\n", prevStatus.err)
+			}
+		}
+	}
 }
 
 func printStatuses() {
@@ -635,7 +638,7 @@ func printStatuses() {
 func main() {
 	//mgo.SetDebug(true)
 	//var aLogger *log.Logger
-	//aLogger = log.New(os.Stderr, "", log.LstdFlags)
+	g_errLogger = log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)
 	//mgo.SetLogger(aLogger)
 
 	g_numRegularExpression = regexp.MustCompile(`^[-+]?[0-9]+\.[0-9]+|[0-9]+`)
