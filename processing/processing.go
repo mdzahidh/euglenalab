@@ -149,8 +149,7 @@ type DataFolderInfo struct {
 }
 
 type JobStatus struct {
-	expId             string
-	bpuName           string
+	exp               *Experiment
 	message           string
 	err               string
 	scripterName      string
@@ -173,7 +172,7 @@ var g_errLogger *log.Logger
 
 func (ws *WorkerStatus) finishJob() {
 	ws.prevStatus = ws.currentStatus
-	ws.currentStatus.expId = ""
+	ws.currentStatus.exp = nil
 	ws.currentStatus.message = ""
 	ws.currentStatus.scripterName = ""
 	ws.currentStatus.scripterCurValue = -1
@@ -182,10 +181,9 @@ func (ws *WorkerStatus) finishJob() {
 	ws.currentStatus.err = ""
 }
 
-func (ws *WorkerStatus) startJob(exp Experiment) {
+func (ws *WorkerStatus) startJob(exp *Experiment) {
 
-	ws.currentStatus.expId = exp.Id.Hex()
-	ws.currentStatus.bpuName = exp.ExpBPUName
+	ws.currentStatus.exp = exp
 	ws.currentStatus.message = ""
 }
 
@@ -410,7 +408,7 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 	fixBPUName(exp)
 
 	// Cuz sometimes the bpu name is populated later !
-	g_workStatuses[wid].currentStatus.bpuName = exp.ExpBPUName
+	//g_workStatuses[wid].currentStatus.exp.ExpBPUName = exp.ExpBPUName
 	g_statusCond.Signal()
 
 	exp.ExpProcessingStartTime = float64(makeTimeStampMillisec(time.Now()))
@@ -525,7 +523,7 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 func consume(wid int, session *mgo.Session, jobs <-chan Experiment) {
 	for {
 		j := <-jobs
-		g_workStatuses[wid].startJob(j)
+		g_workStatuses[wid].startJob(&j)
 		g_statusCond.Signal()
 		atomic.AddInt32(&g_processingThreads, 1)
 		processExperiment(wid, &j, session)
@@ -600,19 +598,26 @@ func printWorkerStatuses() {
 		currStatus := g_workStatuses[i].currentStatus
 		prevStatus := g_workStatuses[i].prevStatus
 
-		if len(currStatus.expId) == 0 {
+		if currStatus.exp == nil || len(currStatus.exp.Id.Hex()) == 0 {
 			fmt.Printf("\tCurrent Experiment: %s\n", "(IDLE)")
 		} else {
-			fmt.Printf("\tCurrent Experiment: %s (%s)\n", currStatus.expId, currStatus.bpuName)
+			fmt.Printf("\tCurrent Experiment: %s (BPU:%s, USER:%s)\n", currStatus.exp.Id.Hex(), currStatus.exp.ExpBPUName, currStatus.exp.User.Name)
 			fmt.Printf("\t\tStatus: %s\n", currStatus.message)
 			if len(currStatus.scripterName) > 0 {
 				fmt.Printf("\t\tAuto-Monitor: %s\n", currStatus.scripterName)
 			}
 		}
 
-		if len(prevStatus.expId) > 0 {
-			fmt.Printf("\tPrevious Experiment: %s (%s)\n", prevStatus.expId, prevStatus.bpuName)
+		if prevStatus.exp != nil && len(prevStatus.exp.Id.Hex()) > 0 {
+			t := time.Unix(int64(prevStatus.exp.ExpProcessingEndTime/1000), 0)
+
+			fmt.Printf("\tPrevious Experiment: %s (BPU:%s, USER:%s, PROCESSED AT:%s)\n", prevStatus.exp.Id.Hex(), prevStatus.exp.ExpBPUName, prevStatus.exp.User.Name, t.Local())
 			fmt.Printf("\t\tStatus: %s\n", prevStatus.message)
+			fmt.Printf("\t\tExperiment Time: %s\n", time.Unix(int64(prevStatus.exp.ExpRunStartTime/1000), 0).Local())
+			fmt.Printf("\t\tLag Time: %f secs\n", (prevStatus.exp.ExpProcessingEndTime-prevStatus.exp.ExpRunEndTime)/1000)
+
+			fmt.Printf("\t\tProcessing Time: %f secs\n", (prevStatus.exp.ExpProcessingEndTime-prevStatus.exp.ExpProcessingStartTime)/1000)
+
 			if len(prevStatus.scripterName) > 0 {
 				fmt.Printf("\t\tAuto-Monitor: %s\n", prevStatus.scripterName)
 				fmt.Printf("\t\tPoint Value: %f\n", prevStatus.scripterCurValue)
