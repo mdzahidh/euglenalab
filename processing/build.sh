@@ -10,3 +10,5 @@ cd ../euglenamovie
 ./build.sh
 cp build/euglenamovie ../tools
 
+# For MacOS, please install OpenCV Python module seperately, this build may not work
+./build_opencv_python.sh
