@@ -1,5 +1,6 @@
 sudo apt-get install -y autoconf libtool nasm yasm cmake libav-tools
-sudo pip install xlsxwriter
+pip install xlsxwriter
+pip install numpy
 
 git submodule init
 git submodule update --recursive
