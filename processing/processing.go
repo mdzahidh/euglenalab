@@ -47,6 +47,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"log"
 	"math"
 	"os"
 	"os/exec"
@@ -61,13 +62,13 @@ import (
 )
 
 const (
-	WORKERS            int    = 4
+	WORKERS            int    = 5
 	MAXRETRIES         int    = 3
 	ROOT               string = "/home/mserver/"
 	BPU_PATH                  = ROOT + "bpuEuglenaData_forMounting/"
 	FINAL_PATH                = ROOT + "finalBpuData/"
 	MINIMUM_JPG_FILES         = 20
-	MONGODB_URI        string = "localhost"
+	MONGODB_URI        string = "192.168.1.100"
 	DATABASE                  = "master"
 	COLLECTION                = "bpuexperiments"
 	BPUCOLLECTION             = "bpus"
@@ -147,8 +148,44 @@ type DataFolderInfo struct {
 	jsonData    map[string]interface{}
 }
 
+type JobStatus struct {
+	exp               *Experiment
+	message           string
+	err               string
+	scripterName      string
+	scripterCurValue  float64
+	scripterOldValue  float64
+	scripterCummValue float64
+}
+
+type WorkerStatus struct {
+	prevStatus    JobStatus
+	currentStatus JobStatus
+}
+
 var g_numRegularExpression *regexp.Regexp
 var g_processingThreads int32
+var g_debug bool = false
+var g_workStatuses []WorkerStatus
+var g_statusCond sync.Cond
+var g_errLogger *log.Logger
+
+func (ws *WorkerStatus) finishJob() {
+	ws.prevStatus = ws.currentStatus
+	ws.currentStatus.exp = nil
+	ws.currentStatus.message = ""
+	ws.currentStatus.scripterName = ""
+	ws.currentStatus.scripterCurValue = -1
+	ws.currentStatus.scripterCummValue = -1
+	ws.currentStatus.scripterOldValue = -1
+	ws.currentStatus.err = ""
+}
+
+func (ws *WorkerStatus) startJob(exp *Experiment) {
+
+	ws.currentStatus.exp = exp
+	ws.currentStatus.message = ""
+}
 
 func getQueryProjection(data interface{}) bson.M {
 	//exp := Experiment{}
@@ -200,7 +237,9 @@ func getDataFolderInfo(exp *Experiment) (DataFolderInfo, error) {
 }
 
 func compileMovie(wid int, exp *Experiment) error {
-	fmt.Printf("Worker %d, Experiment ID: %s - Compiling Movie\n", wid, exp.Id.Hex())
+	// fmt.Printf("Worker %d, Experiment ID: %s - Compiling Movie\n", wid, exp.Id.Hex())
+	g_workStatuses[wid].currentStatus.message = "Compiling Movie"
+	g_statusCond.Signal()
 	_, err := exec.Command(MOVIEEXEC, "-i", exp.ProcStartPath).Output()
 	if err != nil {
 		return errors.New("compileMovie:" + err.Error())
@@ -209,7 +248,9 @@ func compileMovie(wid int, exp *Experiment) error {
 }
 
 func postProcessMovie(wid int, exp *Experiment) error {
-	fmt.Printf("Worker %d, Experiment ID: %s - Postprocessing Movie\n", wid, exp.Id.Hex())
+	// fmt.Printf("Worker %d, Experiment ID: %s - Postprocessing Movie\n", wid, exp.Id.Hex())
+	g_workStatuses[wid].currentStatus.message = "Postprocessing Movie"
+	g_statusCond.Signal()
 	_, err := exec.Command("/bin/bash", MOVIE_POST_PROCESS, exp.ProcStartPath).Output()
 	if err != nil {
 		return errors.New("postProcessMovie:" + err.Error())
@@ -218,7 +259,9 @@ func postProcessMovie(wid int, exp *Experiment) error {
 }
 
 func moveToFinalLocation(wid int, exp *Experiment) error {
-	fmt.Printf("Worker %d, Experiment ID: %s - Removing captured images\n", wid, exp.Id.Hex())
+	// fmt.Printf("Worker %d, Experiment ID: %s - Removing captured images\n", wid, exp.Id.Hex())
+	g_workStatuses[wid].currentStatus.message = "Moving data"
+	g_statusCond.Signal()
 	exp.ProcEndPath = FINAL_PATH + exp.Id.Hex()
 	_, err := exec.Command("/bin/bash", MOVE_DATA, exp.ProcStartPath, FINAL_PATH, exp.Id.Hex()).Output()
 	if err != nil {
@@ -257,7 +300,10 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 	scripterName := exp.User.Name
 	varName := scripterName[8:]
 
-	fmt.Printf("Worker %d, Experiment ID: %s - Processing Scripter (%s) for BPU (%s) \n", wid, exp.Id.Hex(), varName, exp.ExpBPUName)
+	// fmt.Printf("Worker %d, Experiment ID: %s - Processing Scripter (%s) for BPU (%s) \n", wid, exp.Id.Hex(), varName, exp.ExpBPUName)
+
+	g_workStatuses[wid].currentStatus.scripterName = varName
+	g_statusCond.Signal()
 
 	pythonScript := PYTHON_SCRIPT_ROOT + scripterName + ".py"
 	out, err := exec.Command("python", pythonScript, exp.ProcStartPath, strconv.Itoa(int(exp.ExpMetaData.Magnification))).Output()
@@ -307,8 +353,13 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 		scoreValue.Elem().FieldByName("Acc" + varName).SetFloat(newValue)
 		scoreValue.Elem().FieldByName(varName + "Date").SetFloat(expTime)
 
-		fmt.Printf("Worker %d, Experiment ID: %s - Scripter (%s) Updating BPU (%s) Database (oldValue:%f,curValue:%f,cummValue:%f)\n",
-			wid, exp.Id.Hex(), varName, bpu.Name, oldValue, currStat, newValue)
+		// fmt.Printf("Worker %d, Experiment ID: %s - Scripter (%s) Updating BPU (%s) Database (oldValue:%f,curValue:%f,cummValue:%f)\n",
+		// wid, exp.Id.Hex(), varName, bpu.Name, oldValue, currStat, newValue)
+
+		g_workStatuses[wid].currentStatus.scripterCummValue = newValue
+		g_workStatuses[wid].currentStatus.scripterCurValue = currStat
+		g_workStatuses[wid].currentStatus.scripterOldValue = oldValue
+		g_statusCond.Signal()
 
 		selectedFields := prepareBPUpdateFields(&bpu)
 		err = collection.UpdateId(bpu.Id, bson.M{"$set": selectedFields})
@@ -356,6 +407,10 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 
 	fixBPUName(exp)
 
+	// Cuz sometimes the bpu name is populated later !
+	//g_workStatuses[wid].currentStatus.exp.ExpBPUName = exp.ExpBPUName
+	g_statusCond.Signal()
+
 	exp.ExpProcessingStartTime = float64(makeTimeStampMillisec(time.Now()))
 
 	// install a cleanup function
@@ -363,7 +418,7 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 		// Based on error do something.
 		var finalStatement string
 		if err != nil {
-			fmt.Printf("Worker %d, Error: Experiment ID: %s, Description: %s\n", wid, exp.Id.Hex(), err.Error())
+			// fmt.Printf("Worker %d, Error: Experiment ID: %s, Description: %s\n", wid, exp.Id.Hex(), err.Error())
 			exp.ProcErr = err.Error()
 			finalStatement = "FAILED"
 		} else {
@@ -371,11 +426,21 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 			exp.Status = "finished"
 			finalStatement = "SUCCESS"
 		}
-		fmt.Printf("Worker %d, Experiment ID: %s - Updating Database\n", wid, exp.Id.Hex())
+		// fmt.Printf("Worker %d, Experiment ID: %s - Updating Database\n", wid, exp.Id.Hex())
+		g_workStatuses[wid].currentStatus.message = "Updating Database"
+		g_statusCond.Signal()
 		sessionCopy := session.Copy()
 		defer func() {
 			sessionCopy.Close()
-			fmt.Printf("Worker %d, Experiment ID: %s - Processing Complete (%s)\n", wid, exp.Id.Hex(), finalStatement)
+			//fmt.Printf("Worker %d, Experiment ID: %s - Processing Complete (%s)\n", wid, exp.Id.Hex(), finalStatement)
+			g_workStatuses[wid].currentStatus.message = finalStatement
+			if err != nil {
+				g_workStatuses[wid].currentStatus.err = err.Error()
+				g_errLogger.Printf("FAILED: Experiment: %s, User: %s, Error: %s", exp.Id.Hex(), exp.User.Name, err.Error())
+			} else {
+				g_workStatuses[wid].currentStatus.err = ""
+			}
+			g_statusCond.Signal()
 		}()
 
 		exp.ExpProcessingEndTime = float64(makeTimeStampMillisec(time.Now()))
@@ -458,17 +523,21 @@ func processExperiment(wid int, exp *Experiment, session *mgo.Session) {
 func consume(wid int, session *mgo.Session, jobs <-chan Experiment) {
 	for {
 		j := <-jobs
+		g_workStatuses[wid].startJob(&j)
+		g_statusCond.Signal()
 		atomic.AddInt32(&g_processingThreads, 1)
 		processExperiment(wid, &j, session)
 		atomic.AddInt32(&g_processingThreads, -1)
+		g_workStatuses[wid].finishJob()
+		g_statusCond.Signal()
 	}
 }
 
 func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
-	var debug bool = false
+
 	var query bson.M
 
-	if debug {
+	if g_debug {
 		query = bson.M{"_id": bson.M{"$in": []bson.ObjectId{
 			bson.ObjectIdHex("5893b30e0791958622f4b59a"),
 			bson.ObjectIdHex("58967285a25ea31347092fe7"),
@@ -505,7 +574,7 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 		Select(getQueryProjection(Experiment{})).
 		All(&expList)
 
-	fmt.Printf("Experiments: New found: (%d), Waiting in the Queue(%d), being processed (%d)\n", len(expList), len(jobChannel), g_processingThreads)
+	// fmt.Printf("Experiments: New found: (%d), Waiting in the Queue(%d), being processed (%d)\n", len(expList), len(jobChannel), g_processingThreads)
 
 	if err != nil {
 		fmt.Println("Database Query error")
@@ -518,13 +587,69 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 
 }
 
+func printWorkerStatuses() {
+
+	fmt.Println("\033c")
+	//fmt.Println("Hello")
+	for i := 0; i < WORKERS; i++ {
+
+		fmt.Println("Worker: ", i)
+
+		currStatus := g_workStatuses[i].currentStatus
+		prevStatus := g_workStatuses[i].prevStatus
+
+		if currStatus.exp == nil || len(currStatus.exp.Id.Hex()) == 0 {
+			fmt.Printf("\tCurrent Experiment: %s\n", "(IDLE)")
+		} else {
+			fmt.Printf("\tCurrent Experiment: %s (BPU:%s, USER:%s)\n", currStatus.exp.Id.Hex(), currStatus.exp.ExpBPUName, currStatus.exp.User.Name)
+			fmt.Printf("\t\tStatus: %s\n", currStatus.message)
+			if len(currStatus.scripterName) > 0 {
+				fmt.Printf("\t\tAuto-Monitor: %s\n", currStatus.scripterName)
+			}
+		}
+
+		if prevStatus.exp != nil && len(prevStatus.exp.Id.Hex()) > 0 {
+			t := time.Unix(int64(prevStatus.exp.ExpProcessingEndTime/1000), 0)
+
+			fmt.Printf("\tPrevious Experiment: %s (BPU:%s, USER:%s, PROCESSED AT:%s)\n", prevStatus.exp.Id.Hex(), prevStatus.exp.ExpBPUName, prevStatus.exp.User.Name, t.Local())
+			fmt.Printf("\t\tStatus: %s\n", prevStatus.message)
+			fmt.Printf("\t\tExperiment Time: %s\n", time.Unix(int64(prevStatus.exp.ExpRunStartTime/1000), 0).Local())
+			fmt.Printf("\t\tLag Time: %f secs\n", (prevStatus.exp.ExpProcessingEndTime-prevStatus.exp.ExpRunEndTime)/1000)
+
+			fmt.Printf("\t\tProcessing Time: %f secs\n", (prevStatus.exp.ExpProcessingEndTime-prevStatus.exp.ExpProcessingStartTime)/1000)
+
+			if len(prevStatus.scripterName) > 0 {
+				fmt.Printf("\t\tAuto-Monitor: %s\n", prevStatus.scripterName)
+				fmt.Printf("\t\tPoint Value: %f\n", prevStatus.scripterCurValue)
+				fmt.Printf("\t\tOld Value: %f\n", prevStatus.scripterOldValue)
+				fmt.Printf("\t\tNew Value: %f\n", prevStatus.scripterCummValue)
+			}
+			if len(prevStatus.err) > 0 {
+				fmt.Printf("\t\tError: %s\n", prevStatus.err)
+			}
+		}
+	}
+}
+
+func printStatuses() {
+	printWorkerStatuses()
+	for {
+		g_statusCond.L.Lock()
+		g_statusCond.Wait()
+		printWorkerStatuses()
+		g_statusCond.L.Unlock()
+	}
+}
 func main() {
 	//mgo.SetDebug(true)
 	//var aLogger *log.Logger
-	//aLogger = log.New(os.Stderr, "", log.LstdFlags)
+	g_errLogger = log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)
 	//mgo.SetLogger(aLogger)
 
 	g_numRegularExpression = regexp.MustCompile(`^[-+]?[0-9]+\.[0-9]+|[0-9]+`)
+	g_workStatuses = make([]WorkerStatus, WORKERS)
+
+	g_statusCond = sync.Cond{L: &sync.Mutex{}}
 
 	session, err := mgo.Dial(MONGODB_URI)
 	if err != nil {
@@ -541,10 +666,15 @@ func main() {
 		go consume(w, session, expJobChannel)
 	}
 
-	//enqueueExperiments(c, expJobChannel)
-	ticker := time.NewTicker(time.Second * 5)
-	for _ = range ticker.C {
+	go printStatuses()
+
+	if g_debug {
 		enqueueExperiments(c, expJobChannel)
+		<-done
+	} else {
+		ticker := time.NewTicker(time.Second * 5)
+		for _ = range ticker.C {
+			enqueueExperiments(c, expJobChannel)
+		}
 	}
-	<-done
 }

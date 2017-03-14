@@ -700,7 +700,7 @@ var loop=function() {
 
         //Incorrect status, should alreay be out of queue
         } else if(expDoc.exp_status!=='queued' && expDoc.exp_status!=='submited' && expDoc.exp_status!=='created') {
-          err=cnt+':checkExpAndResort BpuExperiment.findById error:'+'Incorrect status, should alreay be out of queue';
+          err=cnt+':checkExpAndResort BpuExperiment.findById error:'+'Incorrect status:'+expDoc.exp_status+', should alreay be out of queue';
           app.logger.error(err);
           expTag.exp_lastResort.rejectionCounter=ExpRejectMax;
           expTag.exp_lastResort.rejectionReason=err;
